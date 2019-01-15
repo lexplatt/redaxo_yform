@@ -86,7 +86,7 @@ class rex_yform_value_select extends rex_yform_value_abstract
         return 'select|name|label|Frau=w,Herr=m|[no_db]|defaultwert|multiple=1|selectsize';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -103,8 +103,8 @@ class rex_yform_value_select extends rex_yform_value_abstract
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],
             'description' => rex_i18n::msg('yform_values_select_description'),
-            'dbtype' => 'text',
-            'famous' => true,
+            'db_type' => ['text'],
+            'deprecated' => rex_i18n::msg('yform_values_deprecated_select'),
         ];
     }
 
@@ -181,4 +181,10 @@ class rex_yform_value_select extends rex_yform_value_abstract
             return ' ( ' . implode(' or ', $where) . ' )';
         }
     }
+
+    public function isDeprecated()
+    {
+        return true;
+    }
+
 }

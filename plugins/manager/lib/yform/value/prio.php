@@ -49,7 +49,7 @@ class rex_yform_value_prio extends rex_yform_value_abstract
                     $prio = $sql->getValue('prio') + 1;
                     $label = [];
                     foreach ($fields as $field) {
-                        $label[] = rex_i18n::translate($sql->getValue($field));
+                        $label[] = rex_i18n::translate($sql->getValue($field),false);
                     }
                     $options[$prio] = rex_i18n::msg('yform_prio_after', implode(' | ', $label));
                 }
@@ -84,7 +84,7 @@ class rex_yform_value_prio extends rex_yform_value_abstract
         return 'prio|name|label|fields|scope|defaultwert';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -94,11 +94,11 @@ class rex_yform_value_prio extends rex_yform_value_abstract
                 'label' => ['type' => 'text',         'label' => rex_i18n::msg('yform_values_defaults_label')],
                 'fields' => ['type' => 'select_names', 'label' => rex_i18n::msg('yform_values_prio_fields')],
                 'scope' => ['type' => 'select_names', 'label' => rex_i18n::msg('yform_values_prio_scope')],
-                'default' => ['type' => 'select',       'label' => rex_i18n::msg('yform_values_prio_default'), 'options' => [1 => 'Am Anfang', '' => 'Am Ende'], 'default' => ''],
+                'default' => ['type' => 'choice',       'label' => rex_i18n::msg('yform_values_prio_default'), 'choices' => [1 => 'Am Anfang', '' => 'Am Ende']],
                 'notice' => ['type' => 'text',        'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],
             'description' => rex_i18n::msg('yform_values_prio_description'),
-            'dbtype' => 'int',
+            'db_type' => ['int'],
             'multi_edit' => false,
         ];
     }
@@ -131,6 +131,7 @@ class rex_yform_value_prio extends rex_yform_value_abstract
 
     protected function getScopeWhere()
     {
+        $sql = rex_sql::factory();
         $scope = $this->getElement('scope');
         if (!is_array($scope) && $scope) {
             $scope = array_filter(explode(',', $scope));
@@ -160,7 +161,10 @@ class rex_yform_value_prio extends rex_yform_value_abstract
             if (!isset($value)) {
                 return false;
             }
-            $where[] = sprintf('`%s` = "%s"', ($column), ($value));
+
+            $value = $sql->escape($value);
+            $where[] = sprintf('`%s` = %s', ($column), ($value));
+
         }
         return ' WHERE ' . implode(' AND ', $where);
     }

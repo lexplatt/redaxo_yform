@@ -22,7 +22,7 @@ class rex_yform_value_be_link extends rex_yform_value_abstract
         $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -35,7 +35,7 @@ class rex_yform_value_be_link extends rex_yform_value_abstract
             ],
             'description' => rex_i18n::msg('yform_values_be_link_description'),
             'formbuilder' => false,
-            'dbtype' => 'text',
+            'db_type' => ['text'],
         ];
     }
 

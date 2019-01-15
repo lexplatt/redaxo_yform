@@ -97,7 +97,7 @@ abstract class rex_yform_base_abstract
         return '';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [];
     }
@@ -131,6 +131,11 @@ abstract class rex_yform_base_abstract
     {
     }
 
+    public function isDeprecated()
+    {
+        return false;
+    }
+
     /* deprecated */
     public function execute()
     {
@@ -139,4 +144,8 @@ abstract class rex_yform_base_abstract
     public function init()
     {
     }
+
+
+
+
 }

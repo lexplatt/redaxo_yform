@@ -21,8 +21,7 @@ class rex_yform_value_php extends rex_yform_value_abstract
 
         ob_start();
         eval('?>' . $php);
-        $out = ob_get_contents();
-        ob_end_clean();
+        $out = ob_get_clean();
         $this->params['form_output'][$this->getId()] = $out;
     }
 
@@ -31,7 +30,7 @@ class rex_yform_value_php extends rex_yform_value_abstract
         return rex_escape('php|name|label|<?php echo date("mdY"); ?>');
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -42,7 +41,7 @@ class rex_yform_value_php extends rex_yform_value_abstract
                 'php' => ['type' => 'textarea',    'label' => rex_i18n::msg('yform_values_php_code')],
             ],
             'description' => rex_i18n::msg('yform_values_php_description'),
-            'dbtype' => 'none',
+            'db_type' => ['none'],
             'is_hiddeninlist' => true,
             'famous' => false,
             'multi_edit' => 'always',
@@ -62,8 +61,7 @@ class rex_yform_value_php extends rex_yform_value_abstract
 
         ob_start();
         eval('?>' . $php);
-        $out = ob_get_contents();
-        ob_end_clean();
+        $out = ob_get_clean();
 
         return $out;
     }

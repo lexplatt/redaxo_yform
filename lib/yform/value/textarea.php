@@ -34,7 +34,7 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
         return 'textarea|name|label|default|[no_db]';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -48,7 +48,7 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],
             'description' => rex_i18n::msg('yform_values_textarea_description'),
-            'dbtype' => 'text',
+            'db_type' => ['text','mediumtext'],
             'search' => true,
             'list_hidden' => false,
             'famous' => true,

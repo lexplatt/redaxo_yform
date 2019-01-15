@@ -11,39 +11,41 @@ class rex_yform_validate_size_range extends rex_yform_validate_abstract
 {
     public function enterObject()
     {
-        if ($this->params['send'] == '1') {
-            $Object = $this->getValueObject();
+        $Object = $this->getValueObject();
 
-            if ($Object->getValue() == '') {
-                return;
-            }
+        if (!$this->isObject($Object)) {
+            return;
+        }
 
-            $w = false;
+        if ($Object->getValue() == '') {
+            return;
+        }
 
-            $minsize = -1;
-            if ($this->getElement('min') != '') {
-                $minsize = (int) $this->getElement('min');
-            }
+        $w = false;
 
-            $maxsize = -1;
-            if ($this->getElement('max') != '') {
-                $maxsize = (int) $this->getElement('max');
-            }
+        $minsize = -1;
+        if ($this->getElement('min') != '') {
+            $minsize = (int) $this->getElement('min');
+        }
 
-            $size = strlen($Object->getValue());
+        $maxsize = -1;
+        if ($this->getElement('max') != '') {
+            $maxsize = (int) $this->getElement('max');
+        }
 
-            if ($minsize > -1 && $minsize > $size) {
-                $w = true;
-            }
+        $size = strlen($Object->getValue());
 
-            if ($maxsize > -1 && $maxsize < $size) {
-                $w = true;
-            }
+        if ($minsize > -1 && $minsize > $size) {
+            $w = true;
+        }
 
-            if ($w) {
-                $this->params['warning'][$Object->getId()] = $this->params['error_class'];
-                $this->params['warning_messages'][$Object->getId()] = $this->getElement('message');
-            }
+        if ($maxsize > -1 && $maxsize < $size) {
+            $w = true;
+        }
+
+        if ($w) {
+            $this->params['warning'][$Object->getId()] = $this->params['error_class'];
+            $this->params['warning_messages'][$Object->getId()] = $this->getElement('message');
         }
     }
 
@@ -52,7 +54,7 @@ class rex_yform_validate_size_range extends rex_yform_validate_abstract
         return 'validate|size_range|name|[minsize]|[maxsize]|Fehlermeldung';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'validate',

@@ -1,5 +1,5 @@
 package: yform
-version: '2.3'
+version: '3.0-dev'
 author: 'Jan Kristinus, Gregor Harlan'
 supportpage: 'https://github.com/yakamara/redaxo_yform/issues'
 
@@ -17,8 +17,10 @@ stylesheets:
 requires:
     packages:
         phpmailer: '^2.0.0'
-    redaxo: '^5.5.0'
-
+    redaxo: '^5.6.0'
+    php:
+        version: '^7.0'
+        
 system_plugins:
     - docs
     - manager

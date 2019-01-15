@@ -22,7 +22,7 @@ class rex_yform_value_integer extends rex_yform_value_abstract
         }
 
         if ($this->needsOutput()) {
-            $this->params['form_output'][$this->getId()] = $this->parse(['value.integer.tpl.php', 'value.text.tpl.php']);
+            $this->params['form_output'][$this->getId()] = $this->parse(['value.integer.tpl.php', 'value.text.tpl.php'], ['prepend' => $this->getElement('unit')]);
         }
 
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
@@ -33,10 +33,10 @@ class rex_yform_value_integer extends rex_yform_value_abstract
 
     public function getDescription()
     {
-        return 'integer|name|label|defaultwert|[no_db]';
+        return 'integer|name|label|defaultwert|[no_db]|[notice]|[unit]';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -46,17 +46,25 @@ class rex_yform_value_integer extends rex_yform_value_abstract
                 'label' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_label')],
                 'default' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_integer_default')],
                 'no_db' => ['type' => 'no_db',   'label' => rex_i18n::msg('yform_values_defaults_table'),  'default' => 0],
+                'attributes' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_attributes'), 'notice' => rex_i18n::msg('yform_values_defaults_attributes_notice')],
+                'unit' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_unit')],
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],
             'description' => rex_i18n::msg('yform_values_integer_description'),
-            'dbtype' => 'int',
-            'null' => true,
+            'db_type' => ['int'],
+            'db_null' => true,
         ];
+    }
+
+    public static function getListValue($params)
+    {
+        return (!empty($params['params']['field']['unit']) && $params['subject'] != "") ? $params['params']['field']['unit'].' '.$params['subject'] : $params['subject'];
+
     }
 
     public static function getSearchField($params)
     {
-        $params['searchForm']->setValueField('text', ['name' => $params['field']->getName(), 'label' => $params['field']->getLabel(), 'notice' => rex_i18n::msg('yform_search_integer_notice')]);
+        $params['searchForm']->setValueField('text', ['name' => $params['field']->getName(), 'label' => $params['field']->getLabel(), 'notice' => rex_i18n::msg('yform_search_integer_notice'), 'prepend' => $params['field']->getElement('unit')]);
     }
 
     public static function getSearchFilter($params)

@@ -38,7 +38,7 @@ class rex_yform_value_radio extends rex_yform_value_abstract
         return 'radio|name|label|Frau=w,Herr=m|[defaultwert]|[attributes]|[notice]|[no_db]';
     }
 
-    public function getDefinitions()
+    public function getDefinitions($values = [])
     {
         return [
             'type' => 'value',
@@ -53,7 +53,8 @@ class rex_yform_value_radio extends rex_yform_value_abstract
                 'no_db' => ['type' => 'no_db',   'label' => rex_i18n::msg('yform_values_defaults_table'),          'default' => 0],
             ],
             'description' => rex_i18n::msg('yform_values_radio_description'),
-            'dbtype' => 'text',
+            'db_type' => ['text'],
+            'deprecated' => rex_i18n::msg('yform_values_deprecated_radio'),
         ];
     }
 
@@ -118,4 +119,10 @@ class rex_yform_value_radio extends rex_yform_value_abstract
             return ' ( ' . implode(' or ', $where) . ' )';
         }
     }
+
+    public function isDeprecated()
+    {
+        return true;
+    }
+
 }

@@ -8,6 +8,8 @@
  */
 class rex_yform_value_be_table extends rex_yform_value_abstract
 {
+    protected $fieldData = [];
+
     public function preValidateAction()
     {
         // bc service for Version < 1.1
@@ -48,11 +50,6 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
 
     public function enterObject()
     {
-        $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-        if ($this->getElement(5) != 'no_db') {
-            $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
-        }
-
         if (!$this->needsOutput()) {
             return;
         }
@@ -67,7 +64,9 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
         $columns = [];
         $objs = [];
         $columnIndex = [];
-        
+
+        $this->fieldData = $data;
+
         $yfparams = \rex_yform::factory()->objparams;
         $yfparams['this'] = \rex_yform::factory();
 
@@ -76,7 +75,8 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
          */
 
         foreach ($_columns as $index => $col) {
-            $values = explode('|', trim(trim(rex_yform::unhtmlentities($col)), '|'));
+            // Use ;; for separating choice columns instead of ,
+            $values = explode('|', trim(trim(str_replace(';;', ',', rex_yform::unhtmlentities($col))), '|'));
             if (count($values) == 1) {
                 $values = ['text', 'text_'. $index, $values[0]];
             }
@@ -130,9 +130,22 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
         }
 
         $this->params['form_output'][$this->getId()] = $this->parse('value.be_table.tpl.php', compact('columns', 'data'));
+
+        if ($this->getParam('send')) {
+            $this->setValue(json_encode($this->fieldData));
+
+            if ($this->getElement('no_db') != 'no_db') {
+                $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
+            }
+            $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
+        }
     }
 
-    public function getDefinitions()
+    public function setFieldData($index, $key, $value) {
+        $this->fieldData[$index][$key] = $value;
+    }
+
+    public function getDefinitions($values = [])
     {
         return [
             'type'        => 'value',
@@ -142,10 +155,11 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
                 'label'   => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_defaults_label')],
                 'columns' => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_be_table_columns')],
                 'notice'  => ['type' => 'text', 'label' => rex_i18n::msg('yform_values_defaults_notice')],
+                'no_db'   => ['type' => 'no_db','label' => rex_i18n::msg('yform_values_defaults_table'), 'default' => 0],
             ],
             'description' => rex_i18n::msg('yform_values_be_table_description'),
             'formbuilder' => false,
-            'dbtype'      => 'text',
+            'db_type'      => ['text'],
         ];
     }
 }

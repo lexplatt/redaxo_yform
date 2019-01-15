@@ -27,6 +27,7 @@ class rex_yform_manager_dataset
     private $relatedCollections = [];
 
     private $messages = [];
+    protected $excludedFields = [];
 
     protected function __construct($table, $id = null)
     {
@@ -418,7 +419,7 @@ class rex_yform_manager_dataset
 
         if (0 == $relation['type'] || 2 == $relation['type']) {
             $query->where('id', $this->getValue($key));
-        } elseif (4 == $relation['type']) {
+        } elseif (4 == $relation['type'] || 5 == $relation['type']) {
             $query->where($relation['field'], $this->getId());
         } elseif (empty($relation['relation_table'])) {
             $query->where('id', explode(',', $this->getValue($key)));
@@ -448,17 +449,17 @@ class rex_yform_manager_dataset
                 continue;
             }
             if (isset($fields[$key])) {
-                $yform->setFieldValue(0, $value, '', $key);
+                $yform->setFieldValue($key,[ 0], $value);
             }
         }
 
-        $send = $yform->getFieldValue('send', '', 'send');
-        $yform->setFieldValue('send', '1', '', 'send');
+        $send = $yform->getFieldValue('send');
+        $yform->setFieldValue('send', [], '1');
 
         $yform->executeFields();
         $this->messages = $yform->getObjectparams('warning_messages');
 
-        $yform->setFieldValue('send', $send, '', 'send');
+        $yform->setFieldValue('send', [], $send);
 
         return empty($this->messages);
     }
@@ -480,19 +481,15 @@ class rex_yform_manager_dataset
                 continue;
             }
             if (isset($fields[$key])) {
-                $yform->setFieldValue(0, $value, '', $key);
+                $yform->objparams['data'][$key] = $value;
             } elseif (isset($columns[$key])) {
                 $yform->objparams['value_pool']['sql'][$key] = $value;
             }
         }
 
-        $send = $yform->getFieldValue('send', '', 'send');
-        $yform->setFieldValue('send', '1', '', 'send');
-
+        $yform->setFieldValue('send', [], '1');
         $this->executeForm($yform);
         $this->messages = $yform->getObjectparams('warning_messages');
-
-        $yform->setFieldValue('send', $send, '', 'send');
 
         return empty($this->messages);
     }
@@ -616,6 +613,11 @@ class rex_yform_manager_dataset
             throw new InvalidArgumentException(sprintf('Unknown action "%s", allowed actions are %s::ACTION_CREATE, ::ACTION_UPDATE and ::ACTION_DELETE', $action, __CLASS__));
         }
 
+        $user = rex::getEnvironment();
+        if ($user == 'backend' && rex::getUser()) {
+            $user = rex::getUser()->getLogin();
+        }
+
         $sql = rex_sql::factory();
         $sql->setDebug(self::$debug);
         $sql
@@ -623,8 +625,8 @@ class rex_yform_manager_dataset
             ->setValue('table_name', $this->table)
             ->setValue('dataset_id', $this->id)
             ->setValue('action', $action)
-            ->setValue('user', rex::isBackend() ? rex::getUser()->getLogin() : 'frontend')
-            ->setRawValue('timestamp', 'NOW()')
+            ->setValue('user', $user)
+            ->setValue('timestamp', $sql::datetime())
             ->insert();
 
         $historyId = $sql->getLastId();
@@ -700,13 +702,17 @@ class rex_yform_manager_dataset
         $yform = $dummy->createForm();
         $yform->setObjectparams('real_field_names', true);
         $yform->setObjectparams('form_needs_output', false);
+        $yform->setObjectparams('csrf_protection', false);
+        $yform->setObjectparams('get_field_type', '');
 
         return self::$internalForms[$this->table] = $yform;
     }
 
-    private function createForm()
+    protected function createForm($yform = null)
     {
-        $yform = new rex_yform();
+        if ($yform === null || rex::isBackend()) {
+            $yform = new rex_yform();
+        }
         $fields = $this->getFields();
         $yform->setDebug(self::$debug);
 
@@ -725,9 +731,23 @@ class rex_yform_manager_dataset
             }
 
             if ($field->getType() == 'value') {
-                $yform->setValueField($field->getTypeName(), $values);
+                $values = rex_extension::registerPoint(new rex_extension_point('YFORM_DATASET_FORM_SETVALUEFIELD', $values, [
+                    'type_name' => $field->getTypeName(),
+                    'object' => $this,
+                    'excluded_fields' => $this->excludedFields
+                ]));
+                if ($values) {
+                    $yform->setValueField($field->getTypeName(), $values);
+                }
             } elseif ($field->getType() == 'validate') {
-                $yform->setValidateField($field->getTypeName(), $values);
+                $values = rex_extension::registerPoint(new rex_extension_point('YFORM_DATASET_FORM_SETVALIDATEFIELD', $values, [
+                    'type_name' => $field->getTypeName(),
+                    'object' => $this,
+                    'excluded_fields' => $this->excludedFields
+                ]));
+                if ($values) {
+                    $yform->setValidateField($field->getTypeName(), $values);
+                }
             } elseif ($field->getType() == 'action') {
                 $yform->setActionField($field->getTypeName(), $values);
             }
@@ -739,7 +759,7 @@ class rex_yform_manager_dataset
         return $yform;
     }
 
-    private function setFormMainId(rex_yform $yform)
+    protected function setFormMainId(rex_yform $yform)
     {
         if ($this->exists()) {
             $where = 'id = ' . (int) $this->id;
