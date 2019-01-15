@@ -143,7 +143,7 @@ class rex_yform_manager
             }
         }
 
-        echo rex_extension::registerPoint(new rex_extension_point('YFORM_MANAGER_REX_INFO', ''));
+        echo rex_extension::registerPoint(new rex_extension_point('YFORM_MANAGER_REX_INFO', '',['manager' => $this] ));
 
         $show_editpage = true;
         $show_editpage = rex_extension::registerPoint(new rex_extension_point('YFORM_MANAGER_DATA_EDIT_FUNC', $show_editpage,
