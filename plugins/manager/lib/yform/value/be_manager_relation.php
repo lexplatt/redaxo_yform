@@ -200,50 +200,6 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
 
             if ($send) {
                 $field->preValidateAction();
-                $lastIds = [];
-                $values = json_decode($field->getValue());
-                $table = rex_yform_manager_table::get($this->getElement('relation_table'));
-
-                $sql->beginTransaction();
-
-                foreach ($values as $counter => $row) {
-                    $row_data = [];
-                    $fieldIndex = 0;
-
-                    foreach ($_fields['fields'] as $_field) {
-                        if ($_field->getName() == $_fields['source']) {
-                            $row_data[$_field->getName()] = $this->params['main_id'];
-                        }
-                        else {
-                            $row_data[$_field->getName()] = is_array($row[$fieldIndex]) ? implode(',', $row[$fieldIndex]) : $row[$fieldIndex];
-                            $fieldIndex++;
-                        }
-                    }
-
-                    $Dataset = $table
-                        ->query()
-                        ->where($_fields['source'], $row_data[$_fields['source']])
-                        ->where($_fields['target'], $row_data[$_fields['target']])
-                        ->findOne();
-
-                    if (!$Dataset) {
-                        $Dataset = $table->createDataset();
-                    }
-
-                    foreach ($row_data as $fieldname => $value) {
-                        $Dataset->setValue($fieldname, $value);
-                    }
-
-                    if ($Dataset->save()) {
-                        $lastIds[] = $Dataset->getId();
-                    }
-                    else {
-                        $this->params['warning'][$this->getId()][$counter] = $this->params['error_class'];
-                        $this->params['warning_messages'][$this->getId()] = implode('<br/>', $Dataset->getMessages());
-                    }
-                }
-
-                $this->setValue($lastIds);
             }
             else if (count($this->getValue())) {
                 $columns = array_diff(array_keys($_fields['fields']), [$_fields['source']]);
@@ -260,18 +216,8 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             }
 
 
-            if ($send) {
-                $field->params['warning'][$this->getId()] = $this->params['warning'][$this->getId()];
-
-                if (!empty ($this->params['warning_messages'])) {
-                    $sql->rollBack();
-                }
-                else  {
-                    $sql->commit();
-                }
-            }
-
             $field->enterObject();
+            $this->params['be_table_field'] = $field;
             $this->params['form_output'][$this->getId()] = $field->params['form_output'][$field->getId()];
 
         }
@@ -558,11 +504,69 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             return;
         }
 
-        if ($this->relation['relation_type'] == 6) {
+        if ($this->relation['relation_type'] == 6 && $this->params['main_id']) {
+            $lastIds = [];
+            $field = $this->params['be_table_field'];
             $sql = rex_sql::factory();
-            $sql->setTable($relationTable);
-            $sql->setWhere(' ' . $sql->escapeIdentifier($relationTableField['source']) . ' =' . $source_id . ' AND id NOT IN (' . implode(',', $this->getValue()) . ')');
-            $sql->delete();
+            $_fields = $this->getRelationTableFields();
+            $values = json_decode($field->getValue());
+            $table = rex_yform_manager_table::get($this->getElement('relation_table'));
+
+            $sql->beginTransaction();
+
+            foreach ($values as $counter => $row) {
+                $row_data = [];
+                $fieldIndex = 0;
+
+                foreach ($_fields['fields'] as $_field) {
+                    if ($_field->getName() == $_fields['source']) {
+                        $row_data[$_field->getName()] = $this->params['main_id'];
+                    }
+                    else {
+                        $row_data[$_field->getName()] = is_array($row[$fieldIndex]) ? implode(',', $row[$fieldIndex]) : $row[$fieldIndex];
+                        $fieldIndex++;
+                    }
+                }
+
+                $Dataset = $table
+                    ->query()
+                    ->where($_fields['source'], $row_data[$_fields['source']])
+                    ->where($_fields['target'], $row_data[$_fields['target']])
+                    ->findOne();
+
+                if (!$Dataset) {
+                    $Dataset = $table->createDataset();
+                }
+
+                foreach ($row_data as $fieldname => $value) {
+                    $Dataset->setValue($fieldname, $value);
+                }
+
+                if ($Dataset->save()) {
+                    $lastIds[] = $Dataset->getId();
+                }
+                else {
+                    $this->params['warning'][$this->getId()][$counter] = $this->params['error_class'];
+                    $this->params['warning_messages'][$this->getId()] = implode('<br/>', $Dataset->getMessages());
+                }
+            }
+
+            $field->params['warning'][$this->getId()] = $this->params['warning'][$this->getId()];
+
+            if (!empty ($this->params['warning_messages'])) {
+                $sql->rollBack();
+            }
+            else  {
+                $sql->commit();
+                $this->setValue($lastIds);
+
+                if (count($lastIds)) {
+                    $sql = rex_sql::factory();
+                    $sql->setTable($relationTable);
+                    $sql->setWhere(' ' . $sql->escapeIdentifier($relationTableField['source']) . ' =' . $source_id . ' AND id NOT IN (' . implode(',', $lastIds) . ')');
+                    $sql->delete();
+                }
+            }
             return;
         }
 
@@ -897,7 +901,6 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
         $source = $table->getRelationsTo($mainTable);
         $target = $table->getRelationsTo($targetTable);
         $fields = $table->getFields();
-
 
         if (empty($source) || empty($target)) {
             $result = [
