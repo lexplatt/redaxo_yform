@@ -104,50 +104,6 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             $this->params['value_pool']['sql'][$this->getName()] = implode(',', $this->getValue());
         }
 
-        if (!$this->needsOutput()) {
-            return;
-        }
-
-        // --------------------------------------- Selectbox, single 0 or multiple 1
-        if ($this->relation['relation_type'] < 2) {
-
-            // ----- SELECT BOX
-            $options = [];
-            if ($this->relation['relation_type'] == 0 && $this->relation['eoption'] == 1) {
-                $options[] = ['id' => '', 'name' => '-'];
-            }
-            foreach (self::getListValues($this->relation['target_table'], $this->relation['target_field'], $filter) as $id => $name) {
-                if (strlen($name) > 50) {
-                    $name = mb_substr($name, 0, 45) . ' ... ';
-                }
-                if (!$this->getElement('just_names')) {
-                    $name = $name . ' [id=' . $id . ']';
-                }
-                $options[] = ['id' => $id, 'name' => $name];
-            }
-
-            $this->params['form_output'][$this->getId()] = $this->parse('value.be_manager_relation.tpl.php', compact('options'));
-        }
-
-        // ------------------------------------ POPUP, single, multiple 1-1, n-m
-        if ($this->relation['relation_type'] == 2 || $this->relation['relation_type'] == 3) {
-            $link = 'index.php?page=yform/manager/data_edit&table_name=' . $this->relation['target_table'];
-            foreach ($filter as $key => $value) {
-                $link .= '&rex_yform_filter[' . $key . ']=' . $value . '&rex_yform_set[' . $key . ']=' . $value;
-            }
-            $this->params['form_output'][$this->getId()] = $this->parse('value.be_manager_relation.tpl.php', compact('valueName', 'options', 'link'));
-        }
-
-        // --------------------------------------- POPUP, 1-n
-        if ($this->relation['relation_type'] == 4) {
-            $filter[$this->relation['target_field']] = $this->params['main_id'];
-            $link = 'index.php?page=yform/manager/data_edit&table_name=' . $this->relation['target_table'];
-            self::addFilterParams($link, $filter);
-            $link = self::addOpenerParams($link);
-            $link .= '&rex_yform_manager_popup=1';
-            $this->params['form_output'][$this->getId()] = $this->parse('value.be_manager_relation.tpl.php', compact('valueName', 'options', 'link', 'send'));
-        }
-
         // --------------------------------------- BE_TABLE, n-m
         if ($this->relation['relation_type'] == 6) {
             $sql = rex_sql::factory();
@@ -215,11 +171,54 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
                 $field->setValue(json_encode($values));
             }
 
-
             $field->enterObject();
             $this->params['be_table_field'] = $field;
             $this->params['form_output'][$this->getId()] = $field->params['form_output'][$field->getId()];
 
+        }
+
+        if (!$this->needsOutput()) {
+            return;
+        }
+
+        // --------------------------------------- Selectbox, single 0 or multiple 1
+        if ($this->relation['relation_type'] < 2) {
+
+            // ----- SELECT BOX
+            $options = [];
+            if ($this->relation['relation_type'] == 0 && $this->relation['eoption'] == 1) {
+                $options[] = ['id' => '', 'name' => '-'];
+            }
+            foreach (self::getListValues($this->relation['target_table'], $this->relation['target_field'], $filter) as $id => $name) {
+                if (strlen($name) > 50) {
+                    $name = mb_substr($name, 0, 45) . ' ... ';
+                }
+                if (!$this->getElement('just_names')) {
+                    $name = $name . ' [id=' . $id . ']';
+                }
+                $options[] = ['id' => $id, 'name' => $name];
+            }
+
+            $this->params['form_output'][$this->getId()] = $this->parse('value.be_manager_relation.tpl.php', compact('options'));
+        }
+
+        // ------------------------------------ POPUP, single, multiple 1-1, n-m
+        if ($this->relation['relation_type'] == 2 || $this->relation['relation_type'] == 3) {
+            $link = 'index.php?page=yform/manager/data_edit&table_name=' . $this->relation['target_table'];
+            foreach ($filter as $key => $value) {
+                $link .= '&rex_yform_filter[' . $key . ']=' . $value . '&rex_yform_set[' . $key . ']=' . $value;
+            }
+            $this->params['form_output'][$this->getId()] = $this->parse('value.be_manager_relation.tpl.php', compact('valueName', 'options', 'link'));
+        }
+
+        // --------------------------------------- POPUP, 1-n
+        if ($this->relation['relation_type'] == 4) {
+            $filter[$this->relation['target_field']] = $this->params['main_id'];
+            $link = 'index.php?page=yform/manager/data_edit&table_name=' . $this->relation['target_table'];
+            self::addFilterParams($link, $filter);
+            $link = self::addOpenerParams($link);
+            $link .= '&rex_yform_manager_popup=1';
+            $this->params['form_output'][$this->getId()] = $this->parse('value.be_manager_relation.tpl.php', compact('valueName', 'options', 'link', 'send'));
         }
 
         // --------------------------------------- INLINE, 1-n
