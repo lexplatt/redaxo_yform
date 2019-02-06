@@ -43,7 +43,7 @@ class rex_yform_value_datestamp extends rex_yform_value_abstract
         }
 
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-        if ($this->getValue() && $this->getElement('no_db') != 1) {
+        if ($this->getValue() && $this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
     }
@@ -75,14 +75,14 @@ class rex_yform_value_datestamp extends rex_yform_value_abstract
     public static function getListValue($params)
     {
         $return = self::datestamp_getValueByFormat($params['subject'], $params['params']['field']['format']);
-        return ($return == "") ? '-':$return;
+        return ($return == '') ? '-' : $return;
     }
 
     public static function datestamp_getValueByFormat($value, $format)
     {
-        if ($value == "0000-00-00 00:00:00") {
+        if ($value == '0000-00-00 00:00:00') {
             $return = '';
-        } else if ($format == "") {
+        } elseif ($format == '') {
             $return = $value;
         } else {
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $value);
@@ -93,6 +93,18 @@ class rex_yform_value_datestamp extends rex_yform_value_abstract
             }
         }
         return $return;
+    }
 
+    public static function getSearchFilter($params)
+    {
+        $sql = rex_sql::factory();
+
+        $value = $params['value'];
+        $field = $sql->escapeIdentifier($params['field']->getName());
+
+        preg_match('/^\s*(<|<=|>|>=|<>|!=)?\s*(.*)$/', $value, $match);
+        $comparator = $match[1] ?: '=';
+        $value = $match[2];
+        return ' ' . $field . ' ' . $comparator . ' ' . $sql->escape($value);
     }
 }

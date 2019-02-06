@@ -24,7 +24,7 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
         }
 
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-        if ($this->getElement('no_db') != 1) {
+        if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
     }
@@ -48,7 +48,7 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],
             'description' => rex_i18n::msg('yform_values_textarea_description'),
-            'db_type' => ['text','mediumtext'],
+            'db_type' => ['text', 'mediumtext'],
             'search' => true,
             'list_hidden' => false,
             'famous' => true,

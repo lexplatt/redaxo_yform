@@ -64,7 +64,7 @@ class rex_yform_value_submit extends rex_yform_value_abstract
             $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
         }
 
-        if ($this->getElement('no_db') != 1 && $this->getElement(3) != 'no_db') { // BC element[3]
+        if ($this->saveInDb() && $this->getElement(3) != 'no_db') { // BC element[3]
             if (!isset($this->params['value_pool']['sql'][$this->getName()]) || $this->params['value_pool']['sql'][$this->getName()] == '') {
                 $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
             }
@@ -73,21 +73,21 @@ class rex_yform_value_submit extends rex_yform_value_abstract
 
     public function getDescription()
     {
-        return 'submit|name|labelvalue1_on_button1,labelvalue2_on_button2 | [value_1_to_save_if_clicked,value_2_to_save_if_clicked] | [no_db] | [Default-Wert] | [cssclassname1,cssclassname2]';
+        return 'submit|name|labelvalue1_on_button1,labelvalue2_on_button2| [value_1_to_save_if_clicked,value_2_to_save_if_clicked] | [no_db] | [Default-Wert] | [cssclassname1,cssclassname2]';
     }
 
     public function getDefinitions($values = [])
     {
         return [
-                'type' => 'value',
-                'name' => 'submit',
-                'values' => [
-                    'name' => ['type' => 'name',    'label' => rex_i18n::msg('yform_values_defaults_name')],
-                    'labels' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_label')],
-                    'values' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_values')],
-                    'no_db' => ['type' => 'no_db',   'label' => rex_i18n::msg('yform_values_defaults_table'),  'default' => 0],
-                    'default' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_default')],
-                    'css_classes' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_css_classes'),
+            'type' => 'value',
+            'name' => 'submit',
+            'values' => [
+                'name' => ['type' => 'name',    'label' => rex_i18n::msg('yform_values_defaults_name')],
+                'labels' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_labels')],
+                'values' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_values')],
+                'no_db' => ['type' => 'no_db',   'label' => rex_i18n::msg('yform_values_defaults_table'),  'default' => 0],
+                'default' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_default')],
+                'css_classes' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_submit_css_classes'),
                 ],
             ],
             'description' => rex_i18n::msg('yform_values_submit_description'),

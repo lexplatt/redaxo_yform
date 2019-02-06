@@ -31,7 +31,7 @@ class rex_yform_value_choice extends rex_yform_value_abstract
         $values = $this->getValue();
 
         if (!$values) {
-            if (in_array($this->getElement('default'), $choiceList->getChoices())) {
+            if (in_array($this->getElement('default'), $choiceList->getChoices(), true)) {
                 $defaultChoices = [$this->getElement('default')];
             } else {
                 $defaultChoices = explode(',', $this->getElement('default'));
@@ -94,7 +94,7 @@ class rex_yform_value_choice extends rex_yform_value_abstract
         $this->params['value_pool']['email'][$this->getName().'_LABELS'] = implode(', ', $choiceList->getSelectedListForEmail($values));
         $this->params['value_pool']['email'][$this->getName().'_LIST'] = implode("\n", $choiceList->getCompleteListForEmail($values));
 
-        if ($this->getElement('no_db') != 1) {
+        if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
     }

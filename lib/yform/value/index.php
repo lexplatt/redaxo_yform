@@ -17,11 +17,10 @@ class rex_yform_value_index extends rex_yform_value_abstract
 
         $value = $this->getValue();
         if (!$value) {
-            $value = "";
+            $value = '';
         }
 
-        if ($this->getElement('names') != "") {
-
+        if ($this->getElement('names') != '') {
             $index_labels = explode(',', $this->getElement('names'));
 
             $value = '';
@@ -55,14 +54,13 @@ class rex_yform_value_index extends rex_yform_value_abstract
             if (function_exists($fnc)) {
                 $value = call_user_func($fnc, $value);
             }
-
         }
 
         $this->setValue($value);
 
-        $this->params['value_pool']['email'][$this->getName()] = $this->getValue();;
-        if ($this->getElement('no_db') != 1) {
-            $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();;
+        $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
+        if ($this->saveInDb()) {
+            $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
     }
 
@@ -84,7 +82,7 @@ class rex_yform_value_index extends rex_yform_value_abstract
                 'function' => ['type' => 'text',  'label' => rex_i18n::msg('yform_values_index_function'), 'notice' => rex_i18n::msg('yform_values_index_function_notice')],
             ],
             'description' => rex_i18n::msg('yform_values_index_description'),
-            'db_type' => ['mediumtext', 'varchar(191)'], // text (65kb) mediumtext (16Mb)
+            'db_type' => ['mediumtext', 'text', 'varchar(191)'], // text (65kb) mediumtext (16Mb)
             'multi_edit' => false,
         ];
     }
@@ -113,7 +111,7 @@ class rex_yform_value_index extends rex_yform_value_abstract
         foreach ($relations as $name => $sub) {
             $relation = $table->getRelation($name);
 
-            if (!$relation || (4 != $relation->getElement('type') && 5 != $relation->getElement('type'))  && !$relation->getElement('relation_table') && empty($this->params['value_pool']['sql'][$name])) {
+            if (!$relation || (4 != $relation->getElement('type') && 5 != $relation->getElement('type')) && !$relation->getElement('relation_table') && empty($this->params['value_pool']['sql'][$name])) {
                 continue;
             }
 

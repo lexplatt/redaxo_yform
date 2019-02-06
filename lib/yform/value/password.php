@@ -20,7 +20,7 @@ class rex_yform_value_password extends rex_yform_value_abstract
         }
 
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-        if ($this->getElement('no_db') != 1) {
+        if ($this->saveInDb('4')) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
     }
@@ -28,5 +28,10 @@ class rex_yform_value_password extends rex_yform_value_abstract
     public function getDescription()
     {
         return 'password|name|label|default_value|[no_db]';
+    }
+
+    public function isDeprecated()
+    {
+        return true;
     }
 }

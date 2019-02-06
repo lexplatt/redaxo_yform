@@ -26,7 +26,7 @@ class rex_yform_value_integer extends rex_yform_value_abstract
         }
 
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-        if ($this->getElement('no_db') != 1) {
+        if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
     }
@@ -58,8 +58,7 @@ class rex_yform_value_integer extends rex_yform_value_abstract
 
     public static function getListValue($params)
     {
-        return (!empty($params['params']['field']['unit']) && $params['subject'] != "") ? $params['params']['field']['unit'].' '.$params['subject'] : $params['subject'];
-
+        return (!empty($params['params']['field']['unit']) && $params['subject'] != '') ? $params['params']['field']['unit'].' '.$params['subject'] : $params['subject'];
     }
 
     public static function getSearchField($params)

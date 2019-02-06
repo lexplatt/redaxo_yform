@@ -10,8 +10,8 @@
 class rex_yform_value_date extends rex_yform_value_abstract
 {
     const
-        VALUE_DATE_DEFAULT = 'YYYY-MM-DD',
-        VALUE_DATE_FORMATS = ['YYYY-MM-DD' => 'YYYY-MM-DD', 'DD-MM-YYYY' => 'DD-MM-YYYY','MM-DD-YYYY' => 'MM-DD-YYYY'];
+        VALUE_DATE_DEFAULT = 'YYYY-MM-DD';
+    const VALUE_DATE_FORMATS = ['YYYY-MM-DD' => 'YYYY-MM-DD', 'DD-MM-YYYY' => 'DD-MM-YYYY', 'MM-DD-YYYY' => 'MM-DD-YYYY', 'MM-YYYY' => 'MM-YYYY', 'YYYY-MM' => 'YYYY-MM', 'DD-MM' => 'DD-MM', 'MM-DD' => 'MM-DD'];
 
     public function preValidateAction()
     {
@@ -118,7 +118,7 @@ class rex_yform_value_date extends rex_yform_value_abstract
     {
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
 
-        if ($this->getElement('no_db') != 1) {
+        if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
 
@@ -128,10 +128,13 @@ class rex_yform_value_date extends rex_yform_value_abstract
 
         $format = self::date_getFormat($this->getElement('format'));
 
-        $yearStart = (int) $this->getElement('year_start');
-
-        if ($yearStart == '0') {
-            $yearStart = date('Y');
+        if (substr($this->getElement('year_start'), 0, 1) == '-') {
+            $minus_years = (int) substr($this->getElement('year_start'), 1);
+            $yearStart = date('Y') - $minus_years;
+        } elseif ($this->getElement('year_start') == '') {
+            $yearStart = date('Y') - 20;
+        } else {
+            $yearStart = (int) $this->getElement('year_start');
         }
 
         if (substr($this->getElement('year_end'), 0, 1) == '+') {
@@ -142,7 +145,7 @@ class rex_yform_value_date extends rex_yform_value_abstract
         }
 
         if ($yearEnd <= $yearStart) {
-            $yearEnd = $yearStart + 20;
+            $yearEnd = date('Y') + 10;
         }
 
         $year = (int) substr($this->getValue(), 0, 4);
@@ -154,7 +157,7 @@ class rex_yform_value_date extends rex_yform_value_abstract
         if ($this->getElement('widget') == 'input:text') {
             $this->params['form_output'][$this->getId()] = $this->parse(['value.text.tpl.php'], ['type' => 'text', 'value' => $input_value]);
 
-            // } else if ($this->getElement('widget') == 'input:date') {
+        // } else if ($this->getElement('widget') == 'input:date') {
             // wird im moment nicht genutzt.
             // $this->params['form_output'][$this->getId()] = $this->parse(['value.text.tpl.php'], ['type' => 'date']);
         } else {
@@ -167,7 +170,7 @@ class rex_yform_value_date extends rex_yform_value_abstract
 
     public function getDescription()
     {
-        return 'date|name|label| jahrstart | [jahrende/+5 ]| [Anzeigeformat YYYY-MM-DD] | [1/Aktuelles Datum voreingestellt] | [no_db] ';
+        return 'date|name|label| [jahrstart/-5] | [jahrende/+5 ]| [Anzeigeformat YYYY-MM-DD] | [1/Aktuelles Datum voreingestellt] | [no_db] ';
     }
 
     public function getDefinitions($values = [])
