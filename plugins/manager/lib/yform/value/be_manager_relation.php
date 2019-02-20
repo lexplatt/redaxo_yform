@@ -111,6 +111,18 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             $field = new rex_yform_value_be_table();
             $_fields = $this->getRelationTableFields();
 
+            $yfparams = \rex_yform::factory()->objparams;
+            $yfparams['this'] = \rex_yform::factory();
+
+            $idField = new rex_yform_manager_field([
+                'type_id' => 'value',
+                'type_name' => 'hidden_input',
+                'name'=> 'id',
+                'no_db' => 0
+            ]);
+
+            $_fields['fields']['id'] = $idField;
+
             foreach ($_fields['fields'] as $_field) {
                 if ($_fields['source'] == $_field->getName()) {
                     continue;
@@ -134,9 +146,6 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
 
                 $beCols[] = implode('|', $columns);
             }
-
-            $yfparams = \rex_yform::factory()->objparams;
-            $yfparams['this'] = \rex_yform::factory();
 
             $field->loadParams($yfparams, ['be_table']);
             $field->setName($this->getName());
@@ -492,6 +501,15 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             $values = json_decode($field->getValue());
             $table = rex_yform_manager_table::get($this->getElement('relation_table'));
 
+            $idField = new rex_yform_manager_field([
+                'type_id' => 'value',
+                'type_name' => 'hidden_input',
+                'name'=> 'id',
+                'no_db' => 1,
+            ]);
+
+            $_fields['fields']['id'] = $idField;
+
             $sql->beginTransaction();
 
             foreach ($values as $counter => $row) {
@@ -510,8 +528,7 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
 
                 $Dataset = $table
                     ->query()
-                    ->where($_fields['source'], $row_data[$_fields['source']])
-                    ->where($_fields['target'], $row_data[$_fields['target']])
+                    ->where('id', $row_data['id'])
                     ->findOne();
 
                 if (!$Dataset) {
