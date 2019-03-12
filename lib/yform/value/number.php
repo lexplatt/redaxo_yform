@@ -35,7 +35,7 @@ class rex_yform_value_number extends rex_yform_value_abstract
 
     public function getDescription()
     {
-        return 'number|name|label|precision|scale|defaultwert|[no_db]|[unit]|[notice]';
+        return 'number|name|label|precision|scale|defaultwert|[no_db]|[unit]|[attributes]|[notice]';
     }
 
     public function getDefinitions($values = [])
@@ -51,6 +51,7 @@ class rex_yform_value_number extends rex_yform_value_abstract
                 'default' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_number_default')],
                 'no_db' => ['type' => 'no_db',   'label' => rex_i18n::msg('yform_values_defaults_table'),  'default' => 0],
                 'unit' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_unit')],
+                'attributes' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_attributes'), 'notice' => rex_i18n::msg('yform_values_defaults_attributes_notice')],
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],
             'validates' => [
