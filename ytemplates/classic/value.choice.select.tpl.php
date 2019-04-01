@@ -28,11 +28,6 @@ if (!isset($elementAttributes)) {
     $elementAttributes = [];
 }
 $elementClass = 'form-control';
-
-if (isset($this->params['fixdata'][$this->getName()]) && !isset($elementAttributes['disabled'])) {
-    $elementAttributes['disabled'] = 'disabled';
-}
-
 if (isset($elementAttributes['class']) && is_array($elementAttributes['class'])) {
     $elementAttributes['class'][] = $elementClass;
 } elseif (isset($elementAttributes['class'])) {
@@ -64,7 +59,7 @@ if (isset($elementAttributes['class']) && is_array($elementAttributes['class']))
 <?php
     } ?>
 
-<div<?= rex_string::buildAttributes($groupAttributes) ?>>
+<p<?= rex_string::buildAttributes($groupAttributes) ?>>
     <?php if ($this->getLabel()): ?>
         <label class="control-label" for="<?= $this->getFieldId() ?>">
             <?= rex_escape($this->getLabelStyle($this->getLabel())) ?>
@@ -92,4 +87,4 @@ if (isset($elementAttributes['class']) && is_array($elementAttributes['class']))
     <?php if ($notices): ?>
         <p class="help-block"><?= implode('<br />', $notices) ?></p>
     <?php endif ?>
-</div>
+</p>
