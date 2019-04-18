@@ -110,7 +110,7 @@ $main_id    = $this->params['this']->getObjectparams('main_id');
 
                             echo '<td class="be-value-input type-'. $column['field']->getElement(0) .'" data-title="'. $column['label'] .'">'. $field_output .'</td>';
                         }
-                    ?>\
+                        ?>\
                     <td class="delete-row"><a class="btn btn-xs btn-delete" href="javascript:void(0)"><i class="rex-icon rex-icon-delete"></i> <?php echo rex_i18n::msg('yform_delete') ?></a></td>\
                 ';
 
