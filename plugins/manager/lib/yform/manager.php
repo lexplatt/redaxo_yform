@@ -400,7 +400,7 @@ class rex_yform_manager
 
                     $fragment = new rex_fragment();
                     $fragment->setVar('class', 'edit', false);
-                    $fragment->setVar('title', $title);
+                    $fragment->setVar('title', $title, false);
                     $fragment->setVar('body', $form, false);
                     // $fragment->setVar('buttons', $buttons, false);
                     $form = $fragment->parse('core/page/section.php');
