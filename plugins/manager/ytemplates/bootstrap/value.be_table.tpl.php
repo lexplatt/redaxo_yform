@@ -35,7 +35,6 @@ $main_id    = $this->params['this']->getObjectparams('main_id');
             <tr>
                 <?php foreach ($columns as $i => $column): ?>
                     <?php
-                    $rowData = array_values($row);
                     $field = $column['field'];
                     $field->params['form_output'] = [];
                     $field->params['this']->setObjectparams('form_name', $this->getId() . '.' . $i);
@@ -49,7 +48,7 @@ $main_id    = $this->params['this']->getObjectparams('main_id');
                         $field->params['main_table'] = $field->getElement('table');
                         $field->setName($field->getElement('field'));
                     }
-                    $field->setValue($rowData[$i] ?: '');
+                    $field->setValue($row[$i] ?: '');
                     $field->setId($data_index);
                     $field->enterObject();
                     $field_output = trim($field->params['form_output'][$field->getId()]);
@@ -143,7 +142,7 @@ $main_id    = $this->params['this']->getObjectparams('main_id');
                 tr.fadeOut('normal', function () {
                     $(document).trigger('be_table:before-row-remove', [tr]);
                     tr.remove();
-                    $(document).trigger('be_table:row-removed');
+                    $(document).trigger('be_table:row-removed', [wrapper]);
                 })
                 return false;
             });
