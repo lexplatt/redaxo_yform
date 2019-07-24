@@ -22,29 +22,8 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
         }
 
         if ($this->getParam('send') && isset($_POST['FORM'])) {
-            // Cleanup Array
-            $table_array = [];
-
-            $id = $this->getId();
-
-            $columns = preg_split("/(?<=[^\w\"]),|,(?=\{)|(?<=[A-Za-z]),(?=[^ ][\w,])|(?<=,\w),/", $this->getElement('columns'));
-            if (count($columns) == 0) {
-                return;
-            }
-
-            $form_data = rex_post('FORM', 'array');
-
-            if (isset($form_data[$id . '.0'])) {
-                $rowKeys = array_keys((array) $form_data[$id . '.0']);
-
-                // Spalten durchgehen
-                for ($c = 0; $c < count($columns); ++$c) {
-                    foreach ($rowKeys as $r) {
-                        $table_array[$r][$c] = (isset($form_data[$id . '.' . $c][$r])) ? $form_data[$id . '.' . $c][$r] : '';
-                    }
-                }
-            }
-            $this->setValue(json_encode(array_values($table_array)));
+            $values = $this->getValueFromPost();
+            $this->setValue(json_encode($values));
         }
     }
 
@@ -91,6 +70,25 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
             }
         }
         return array_merge($valueFields, $validateFields);
+    }
+
+    public function getValueFromPost()
+    {
+        $data = [];
+        $subkey = $this->getId() . '.';
+        $key_len = strlen($subkey);
+        $form_data = rex_post('FORM', 'array');
+
+        foreach ($form_data as $key => $values) {
+            if (substr($key, 0, $key_len) == $subkey) {
+                $col_index = substr($key, $key_len);
+
+                foreach ($values as $index => $value) {
+                    $data[$index][$col_index] = $value;
+                }
+            }
+        }
+        return array_values($data);
     }
 
     public function enterObject()
