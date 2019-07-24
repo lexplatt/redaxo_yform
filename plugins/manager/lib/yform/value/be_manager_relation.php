@@ -158,6 +158,7 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
                 $field->preValidateAction();
             }
             else if (count($this->getValue())) {
+                $data = [];
                 $columns = array_diff(array_keys($_fields['fields']), [$_fields['source']]);
 
                 $values = $sql->setQuery('
@@ -168,7 +169,10 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
                         AND ' . $sql->escapeIdentifier($_fields['target']) . ' IN(' . implode(',', $this->getValue()) . ') 
                 ')->getArray();
 
-                $field->setValue(json_encode($values));
+                foreach ($values as $_values) {
+                    $data[] = array_values($_values);
+                }
+                $field->setValue(json_encode($data));
             }
 
             $field->enterObject();
