@@ -178,7 +178,7 @@ class rex_yform_value_upload extends rex_yform_value_abstract
 
         $this->setValue($filename);
 
-        $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
+        $this->params['value_pool']['email'][$this->getName()] = $this->getParam('main_id') . '_' . $this->getValue();
         $this->params['value_pool']['email'][$this->getName().'_folder'] = $this->getValue();
         if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
