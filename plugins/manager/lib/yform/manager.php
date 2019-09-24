@@ -281,6 +281,8 @@ class rex_yform_manager
                 $yform->setHiddenFields($rex_yform_list);
                 $yform->setHiddenFields(['rex_yform_filter' => $rex_yform_filter]);
                 $yform->setHiddenFields(['rex_yform_set' => $rex_yform_set]);
+                $yform->setHiddenFields(['rex_yform_manager_opener' => $rex_yform_manager_opener]);
+                $yform->setHiddenFields(['rex_yform_manager_popup' => $rex_yform_manager_popup]);
 
                 if (rex_request('rex_yform_show_formularblock', 'string') != '') {
                     // Optional .. kann auch geloescht werden. Dient nur zu Hilfe beim Aufbau
@@ -342,17 +344,35 @@ class rex_yform_manager
 
                 rex_extension::registerPoint(new rex_extension_point('YFORM_MANAGER_PAGE_EXECUTE_FORM', $yform, ['table' => $this->table]));
 
-                $form = $data->executeForm($yform, function (rex_yform $yform) {
-                    /** @var rex_yform_value_abstract $valueObject */
-                    foreach ($yform->objparams['values'] as $valueObject) {
-                        if ($valueObject->getName() == 'submit') {
-                            if ($valueObject->getValue() == 2) { // apply
-                                $yform->setObjectparams('form_showformafterupdate', 1);
-                                $yform->executeFields();
+                $sql_db = rex_sql::factory();
+                $sql_db->beginTransaction();
+
+                $transactionErrorMessage = null;
+
+                try {
+
+                    $form = $data->executeForm($yform, function (rex_yform $yform) {
+                        /** @var rex_yform_value_abstract $valueObject */
+                        foreach ($yform->objparams['values'] as $valueObject) {
+                            if ($valueObject->getName() == 'submit') {
+                                if ($valueObject->getValue() == 2) { // apply
+                                    $yform->setObjectparams('form_showformafterupdate', 1);
+                                    $yform->executeFields();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+
+                } catch (\Throwable $e) {
+                    $sql_db->rollBack();
+                    $transactionErrorMessage = $e->getMessage();
+                }
+
+                if ($transactionErrorMessage) {
+                    echo rex_view::error(rex_i18n::msg('yform_editdata_collection_error_abort', $transactionErrorMessage));
+                } else {
+                    $sql_db->commit();
+                }
 
                 if ($yform->objparams['actions_executed']) {
                     if ($func == 'edit') {
@@ -689,14 +709,26 @@ class rex_yform_manager
                 $fragment->setVar('content', $content, false);
                 $content = $fragment->parse('core/page/section.php');
 
+                $grid = [];
+                $grid['content'] = [];
                 if ($this->table->isSearchable() && $this->hasDataPageFunction('search')) {
-                    $fragment = new rex_fragment();
-                    $fragment->setVar('content', [$searchform, $content], false);
-                    $fragment->setVar('classes', ['col-sm-3 col-md-3 col-lg-2', 'col-sm-9 col-md-9 col-lg-10'], false);
-                    echo $fragment->parse('core/page/grid.php');
-                } else {
-                    echo $content;
+                    $grid['content']['searchform'] = $searchform;
                 }
+                $grid['content']['searchlist'] = $content;
+
+                $grid['classes'] = [];
+                $grid['classes']['searchform'] = 'col-sm-3 col-md-3 col-lg-2';
+                $grid['classes']['searchlist'] = 'col-sm-9 col-md-9 col-lg-10';
+
+                $grid['fragment'] = 'yform/manager/page/grid.php';
+
+                $grid = rex_extension::registerPoint(new rex_extension_point('YFORM_DATA_LIST_GRID', $grid, ['table' => $this->table]));
+
+                $fragment = new rex_fragment();
+                $fragment->setVar('content', $grid['content'], false);
+                $fragment->setVar('classes', $grid['classes'], false);
+                echo $fragment->parse($grid['fragment']);
+
             }
         } // end: $show_editpage
     }

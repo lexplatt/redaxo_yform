@@ -9,11 +9,13 @@
 
 class rex_yform
 {
+    use rex_factory_trait;
+
     public static $TemplatePaths = [];
 
     private $fieldsInitialized = false;
 
-    public function __construct()
+    public function __construct(array $params = [])
     {
         $this->objparams = [];
 
@@ -101,11 +103,17 @@ class rex_yform
 
         $this->objparams['form_array'] = [];
         $this->objparams['this'] = $this;
+
+        $this->objparams = array_merge($this->objparams, $params);
+
+        rex_extension::registerPoint(new rex_extension_point('YFORM_INIT', $this));
+
     }
 
-    public static function factory()
+    public static function factory(array $params = [])
     {
-        return new self();
+        $class = static::getFactoryClass();
+        return new $class($params);
     }
 
     public static function addTemplatePath($path)
@@ -340,6 +348,12 @@ class rex_yform
                 $type = 'actions';
             } else {
                 $class = 'rex_yform_value_' . trim($element[0]);
+                $type = 'values';
+            }
+
+            if (!class_exists($class)) {
+                array_unshift($element,'html', uniqid('html'));
+                $class = 'rex_yform_value_html';
                 $type = 'values';
             }
 
