@@ -31,7 +31,11 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
     {
         $valueFields = [];
         $validateFields = [];
-        $_columns = preg_split ("/(?<=[^\w\"]),|,(?=\{)|(?<=[A-Za-z]),(?=[^ ][\w,])|(?<=,\w),/" , $definition);
+        if (strpos($definition, '$$') !== false) {
+            $_columns = explode('$$', $definition);
+        } else {
+            $_columns = preg_split ("/(?<=[^\w\"]),|,(?=\{)|(?<=[A-Za-z]),(?=[^ ][\w,])|(?<=,\w),/" , $definition);
+        }
 
         if (count($_columns)) {
             foreach ($_columns as $index => $col) {
