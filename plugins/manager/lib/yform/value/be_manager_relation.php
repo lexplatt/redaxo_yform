@@ -115,7 +115,7 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             $_fields['fields']['id'] = $idField;
 
             foreach ($_fields['fields'] as $_field) {
-                if ($_fields['source'] == $_field->getName()) {
+                if ($_fields['source'] == $_field->getName() || $_field->getElement('list_hidden') == 1) {
                     continue;
                 }
 
@@ -142,7 +142,7 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             $field->setName($this->getName());
             $field->init();
             $field->setLabel($this->getElement('label'));
-            $field->setElement('columns', implode(',', $beCols));
+            $field->setElement('columns', implode('$$', $beCols));
             $field->setElement('no_db', 1);
             $field->setId($this->getId());
 
