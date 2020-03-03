@@ -44,8 +44,14 @@ class rex_yform_rest
 
     public static function handleRoutes()
     {
+        // kreatif: rest route identifaction fix
+        $currentPath = self::getCurrentPath();
+        if (class_exists('\rex_yrewrite')) {
+            $currentPath = str_replace(rex_yrewrite::getCurrentDomain()->getPath(), '/', self::getCurrentPath());
+        }
+
         if (self::$preRoute != '') {
-            if (substr(self::getCurrentPath(), 0, strlen(self::$preRoute)) != self::$preRoute) {
+            if (substr($currentPath, 0, strlen(self::$preRoute)) != self::$preRoute) {
                 return false;
             }
         }
@@ -53,11 +59,11 @@ class rex_yform_rest
         foreach (self::$routes as $route) {
             $routePath = self::$preRoute . $route->getPath();
 
-            if (substr(self::getCurrentPath(), 0, strlen($routePath)) != $routePath) {
+            if (substr($currentPath, 0, strlen($routePath)) != $routePath) {
                 continue;
             }
 
-            $paths = explode('/', substr(self::getCurrentPath(), strlen($routePath)));
+            $paths = explode('/', substr($currentPath, strlen($routePath)));
 
             $paths = array_filter($paths, function ($p) {
                 if (!empty($p)) {
@@ -140,6 +146,10 @@ class rex_yform_rest
 
         if (isset($_SERVER['HTTP_X_FORWARDED_SERVER'])) {
             $url .= $_SERVER['HTTP_X_FORWARDED_SERVER'];
+        } else if(class_exists('\rex_yrewrite')) {
+            // kreatif: this check is needed for subfolder domains
+            $domain = rex_yrewrite::getCurrentDomain();
+            $url .= trim($domain->getHost() . $domain->getPath(), '/');
         } else {
             $url .= @$_SERVER['HTTP_HOST'];
         }
