@@ -34,7 +34,6 @@ if ($filename != '') {
 
     if (rex::isBackend() && $download_link != "") {
         $label = '<a href="' . $download_link . '">' . $label . '</a>';
-
     }
 
     echo '

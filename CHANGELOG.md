@@ -1,6 +1,27 @@
 Changelog
 =========
 
+Version 3.3.1 – 30.10.2019
+--------------------------
+
+* Bug mit Relationsansichten korrigiert. z.B. Selectpicker ging nicht.
+
+
+Version 3.3 – 25.10.2019
+--------------------------
+
+### Korrekturen, Anpassungen
+
+* Be-Relation-Feld: Fehler bei inline Relationen korrigiert
+* Diverse Debugausgaben entfernt
+* time, date, datetime vereinheitlicht
+* Rest Token wird nun angeboten
+* Uploadfeld optimiert. Downloadfähig im Datensatz selber
+* Be-Relation-Feld: Multiple Wert Ausgaben in den Listen korrigiert
+* Datestamp Multiedit korrigiert. Wert wurde fälschlicherweise neu gesetzt
+* Action redirect optimiert. Exit wird nach dem Formular (postactions) durchgeführt
+
+
 Version 3.2 – 19.09.2019
 --------------------------
 
