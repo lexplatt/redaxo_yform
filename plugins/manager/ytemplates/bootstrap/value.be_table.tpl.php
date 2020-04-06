@@ -85,6 +85,11 @@ $main_id    = $this->params['this']->getObjectparams('main_id');
                         new RegExp("(addREXMedialist\\()", 'g'),
                         new RegExp("(deleteREXMedialist\\()", 'g'),
                         new RegExp("(viewREXMedialist\\()", 'g'),
+                        // REX_LINK
+                        new RegExp("(REX_LINK_)[0-9]+", 'g'),
+                        new RegExp("(REX_LINK_NAME\\[)[0-9]+", 'g'),
+                        new RegExp("(openLinkMap\\('REX_LINK_)[0-9]+", 'g'),
+                        new RegExp("(deleteREXLink\\()[0-9]+", 'g'),
                     ],
                     row_html = '\
                     <?php
@@ -119,7 +124,7 @@ $main_id    = $this->params['this']->getObjectparams('main_id');
                 row_html = row_html.replace(new RegExp('--FIELD_ID--', 'g'), be_table_cnt);
 
                 for (var i in regexp) {
-                    row_html = row_html.replace(regexp[i], '$1' + be_table_cnt + '<?= $i ?>');
+                    row_html = row_html.replace(regexp[i], '$1' + parseInt(be_table_cnt + <?= $i ?>));
                 }
                 tr.html(row_html);
 
