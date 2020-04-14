@@ -570,12 +570,15 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
                 $sql->commit();
                 $this->setValue($lastIds);
 
+                $sql = rex_sql::factory();
+                $sql->setTable($relationTable);
+
+                $where = [$sql->escapeIdentifier($relationTableField['source']) . ' = ' . $source_id];
                 if (count($lastIds)) {
-                    $sql = rex_sql::factory();
-                    $sql->setTable($relationTable);
-                    $sql->setWhere(' ' . $sql->escapeIdentifier($relationTableField['source']) . ' =' . $source_id . ' AND id NOT IN (' . implode(',', $lastIds) . ')');
-                    $sql->delete();
+                    $where[] = 'id NOT IN (' . implode(',', $lastIds) . ')';
                 }
+                $sql->setWhere(implode(' AND ', $where));
+                $sql->delete();
             }
             return;
         }
