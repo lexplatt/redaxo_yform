@@ -45,9 +45,10 @@ class rex_yform_rest
     public static function handleRoutes()
     {
         // kreatif: rest route identifaction fix
-        $currentPath = self::getCurrentPath();
         if (class_exists('\rex_yrewrite')) {
             $currentPath = str_replace(rex_yrewrite::getCurrentDomain()->getPath(), '/', self::getCurrentPath());
+        } else {
+            $currentPath = str_replace($_SERVER['BASE'], '', self::getCurrentPath());
         }
 
         if (self::$preRoute != '') {
@@ -74,7 +75,8 @@ class rex_yform_rest
 
             /* @var $route \rex_yform_rest_route */
 
-            if (!$route->hasAuth()) {
+            // kreatif: $paths added
+            if (!$route->hasAuth($paths)) {
                 self::sendError(400, 'no-access');
             } else {
                 $route
@@ -97,8 +99,10 @@ class rex_yform_rest
 
     public static function sendContent($status, $content, $contentType = 'application/json')
     {
+        // kreatif: EP added for wildcard::parse
+        $content = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_SEND_CONTENT', json_encode($content)));
         \rex_response::setStatus(self::$status[$status]);
-        \rex_response::sendContent(json_encode($content), $contentType);
+        \rex_response::sendContent($content, $contentType);
         exit;
     }
 
@@ -151,7 +155,8 @@ class rex_yform_rest
             $domain = rex_yrewrite::getCurrentDomain();
             $url .= trim($domain->getHost() . $domain->getPath(), '/');
         } else {
-            $url .= @$_SERVER['HTTP_HOST'];
+            // kreatif: url base added
+            $url .= @$_SERVER['HTTP_HOST'] . $_SERVER['BASE'];
         }
 
         $query = http_build_query($params, '', '&');

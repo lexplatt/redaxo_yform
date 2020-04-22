@@ -18,11 +18,28 @@ class rex_yform_rest_route
 
     }
 
-    public function hasAuth()
+    // kreatif: method to verify the json is valid
+    public static function getRequestData()
+    {
+        $jsonData = [];
+        $content  = trim(file_get_contents('php://input'));
+
+        if ($content != '') {
+            $jsonData = @json_decode($content, true);
+
+            if (json_last_error() != JSON_ERROR_NONE) {
+                \rex_yform_rest::sendError(400, 'json-is-not-valid');
+            }
+        }
+        return $jsonData;
+    }
+
+    // kreatif: $paths added
+    public function hasAuth($paths)
     {
         if (isset($this->config['auth'])) {
             if (is_callable($this->config['auth'])) {
-                return call_user_func($this->config['auth'], $this);
+                return call_user_func($this->config['auth'], $this, $paths);
             }
             return $this->config['auth'];
         }
@@ -56,6 +73,12 @@ class rex_yform_rest_route
 
                 $instance = $table->createDataset();
                 $fields = $this->getFields('get', $instance);
+
+                // kreatif: EP added
+                \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_PRE_INSTANCE_GET', $table, [
+                    'route' => $this,
+                    'paths' => $paths,
+                ]));
 
                 /* @var rex_yform_manager_dataset $instance */
                 $instance = null;
@@ -138,8 +161,17 @@ class rex_yform_rest_route
                             $instance = $query->findOne();
 
                             if (!$instance) {
+                                // kreatif: EP added
+                                $instance = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_DATASET_NOT_FOUND', $instance, [
+                                    'route' => $this,
+                                    'paths' => $paths,
+                                ]));
+                            }
+                            if (!$instance) {
                                 \rex_yform_rest::sendError(400, 'dataset-not-found', ['paths' => $paths, 'table' => $query->getTable()->getTableName()]);
                             }
+                            // kreatif: instance detail view marking
+                            $instance->isDetail = true;
 
                             $fields = $this->getFields('get', $instance);
                         }
@@ -147,17 +179,26 @@ class rex_yform_rest_route
                     } else {
                         $attribute = $path;
 
-                        if (!array_key_exists($attribute, $fields)) {
-                            \rex_yform_rest::sendError(400, 'attribute-not-found', ['paths' => $paths, 'table' => $table->getTableName()]);
-                        }
+                        // kreatif: EP added
+                        $searchAttribute = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_HANDLE_PATH', true, [
+                            'path' => $path,
+                            'instance' => $instance
+                        ]));
 
-                        if ($fields[$attribute]->getTypeName() == 'be_manager_relation') {
-                            $instances = $instance->getRelatedCollection($attribute);
-                            if (count($instances) > 0) {
-                                $instance = $instances->current();
+                        // kreatif: check if attribute verifyin is needed or just proceed
+                        if ($searchAttribute) {
+                            if (!array_key_exists($attribute, $fields)) {
+                                \rex_yform_rest::sendError(400, 'attribute-not-found', ['paths' => $paths, 'table' => $table->getTableName()]);
                             }
-                            $fields = self::getFields('get', $instance);
-                            $instance = null;
+
+                            if ($fields[$attribute]->getTypeName() == 'be_manager_relation') {
+                                $instances = $instance->getRelatedCollection($attribute);
+                                if (count($instances) > 0) {
+                                    $instance = $instances->current();
+                                }
+                                $fields = self::getFields('get', $instance);
+                                $instance = null;
+                            }
                         }
                     }
                 }
@@ -243,7 +284,8 @@ class rex_yform_rest_route
                 $errors = [];
                 $fields = $this->getFields('post', $instance);
 
-                $in = json_decode(file_get_contents('php://input'), true);
+                // kreatif: use self::getRequestData() to verify json validity
+                $in = self::getRequestData();
 
                 $data = (array) @$in['data']['attributes'];
                 $type = (string) @$in['data']['type'];
@@ -371,6 +413,12 @@ class rex_yform_rest_route
 
     public function getFields($type = 'get', $instance = null)
     {
+        // kreatif: EP added
+        \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_GET_FIELDS', $this, [
+            'type' => $type,
+            'instance' => $instance
+        ]));
+
         $class = $this->getTypeFromInstance($instance);
 
         $returnFields = ['id' => new \rex_yform_manager_field([
@@ -456,7 +504,8 @@ class rex_yform_rest_route
         } else {
             return
                 [
-                    'id' => $instance->getId(),
+                    // kreatif: (int) casting added
+                    'id' => (int)$instance->getId(),
                     'type' => $this->getTypeFromInstance($instance),
                     'attributes' => $this->getInstanceAttributes($instance),
                     'relationships' => $this->getInstanceRelationships($instance),
@@ -474,7 +523,17 @@ class rex_yform_rest_route
 
         foreach ($fields as $fieldName => $field) {
             if ($field->getTypeName() != 'be_manager_relation') {
-                $data[$fieldName] = $instance->getValue($field->getName());
+                // kreatif: fieldname mapping added
+                $fieldName = $instance->getRestFieldname($fieldName);
+                // kreatif: add data type check
+                $value = $instance->getValue($field->getName());
+
+                if ($field->getElement('type_name') == 'number') {
+                    $value = (float)$value;
+                } else if ($field->getElement('db_type') == 'int' || $field->getElement('type_name') == 'integer') {
+                    $value = (int)$value;
+                }
+                $data[$fieldName] = $value;
             }
         }
         return $data;
