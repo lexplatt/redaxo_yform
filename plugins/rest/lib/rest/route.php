@@ -347,6 +347,10 @@ class rex_yform_rest_route
                     // komplettes Dataset zurückgeben, nach https://jsonapi.org/
 
                     if ($dataset->save()) {
+                        // kreatif: EP added
+                        \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_SAVED', $dataset, [
+                            'status' => $OKStatus,
+                        ]));
                         \rex_yform_rest::sendContent($OKStatus, ['id' => $dataset->getId()]);
                     } else {
                         foreach ($dataset->getMessages() as $message_key => $message) {
