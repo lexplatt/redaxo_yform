@@ -81,4 +81,13 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
         }
         return $sql->escapeIdentifier($field) . ' = ' . $sql->escape($value);
     }
+
+    public static function getListValue($params)
+    {
+        return strip_tags(strtr($params['subject'], [
+            '<br />' => ' ',
+            '<br/>'  => ' ',
+            '<br>'   => ' ',
+        ]));
+    }
 }
