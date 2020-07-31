@@ -32,7 +32,7 @@ class rex_yform_validate_empty extends rex_yform_validate_abstract
         foreach ($warningObjects as $warningObject) {
             $msg = Wildcard::parse($this->getElement('message'));
             $this->params['warning'][$warningObject->getId()] = $this->params['error_class'];
-            $this->params['warning_messages'][$warningObject->getId()] = str_replace('{{fieldname}}', $label, $msg);
+            $this->params['warning_messages'][$warningObject->getId()] = str_replace('{{fieldname}}', rex_i18n::translate($label), $msg);
         }
     }
 
