@@ -1136,6 +1136,12 @@ class rex_yform_manager
                 $yform->setValueField('hidden', ['search', 0]);
             }
 
+            // kreatif: create and update infos added
+            $yform->setValueField('be_user', ['name' => 'createuser', 'label' => 'Erstellt von', 'only_empty' => 1, 'show_value' => 1]);
+            $yform->setValueField('datestamp', ['name' => 'createdate', 'label' => 'Erstellt am', 'format' => 'Y-m-d H:i:s', 'only_empty' => 1, 'show_value' => 1]);
+            $yform->setValueField('be_user', ['name' => 'updateuser', 'label' => 'Aktualisiert von', 'only_empty' => 0, 'show_value' => 1]);
+            $yform->setValueField('datestamp', ['name' => 'updatedate', 'label' => 'Aktualisiert am', 'format' => 'Y-m-d H:i:s', 'only_empty' => 0, 'show_value' => 1]);
+
             $form = $yform->getForm();
 
             if ($yform->objparams['form_show']) {

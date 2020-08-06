@@ -154,11 +154,21 @@ if ($func == 'tableset_import' && rex::getUser()->isAdmin()) {
 
     $yform->setValueField('html', ['html' => '<br /><div class="row"><div class="col-md-6">']);
     $yform->setValueField('choice', ['name' => 'list_sortfield', 'label' => rex_i18n::msg('yform_manager_sortfield'), 'choices' => implode(',', $sortFields)]);
+
+    // kreatif: create infos added
+    $yform->setValueField('be_user', ['name' => 'createuser', 'label' => 'Erstellt von', 'only_empty' => 1, 'show_value' => 1]);
+    $yform->setValueField('datestamp', ['name' => 'createdate', 'label' => 'Erstellt am', 'format' => 'Y-m-d H:i:s', 'only_empty' => 1, 'show_value' => 1]);
+    
     $yform->setValueField('html', ['html' => '</div><div class="col-md-6">']);
     $yform->setValueField('choice', ['name' => 'list_sortorder', 'label' => rex_i18n::msg('yform_manager_sortorder'), 'choices' => [
         'ASC' => rex_i18n::msg('yform_manager_sortorder_asc'),
         'DESC' => rex_i18n::msg('yform_manager_sortorder_desc'),
     ]]);
+
+    // kreatif: update infos added
+    $yform->setValueField('be_user', ['name' => 'updateuser', 'label' => 'Aktualisiert von', 'only_empty' => 0, 'show_value' => 1]);
+    $yform->setValueField('datestamp', ['name' => 'updatedate', 'label' => 'Aktualisiert am', 'format' => 'Y-m-d H:i:s', 'only_empty' => 0, 'show_value' => 1]);
+
 
     $yform->setValueField('html', ['html' => '</div></div>']);
 
