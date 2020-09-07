@@ -1,6 +1,68 @@
 Changelog
 =========
 
+Version 3.4.1 – 03.08.2020
+--------------------------
+
+### Korrekturen, Anpassungen, Bugs
+
+* Sprachersetzungen ergänzt
+* Doku angepasst
+* Inline relations: Orginal verlor die eigenen Relation-Ids, Fehler beseitigt : Inline relation in inline relation
+* Copy Objekt erstellt
+* be_relation: Cache löschen nach Anlegen neuer Datensätze
+* query: neue Methode whereListContains()
+* manager: field identifier in manager rex_list had conflicts with Label
+* be_select_category - permission check was wrong
+* validate: compare_value type select wasnt working
+* multiple related popups wasnt working. id management.
+
+Danke an: Fernando Averanga, Jürgen Weiss, Yves Torres
+
+Version 3.4 – 12.06.2020
+--------------------------
+
+### Korrekturen, Anpassungen, Bugs
+
+* fields: be_media, mediafile, be_link: Medien und Artikel sind nun nicht mehr löschbar wenn in YForm vorhanden
+* EP YFORM_MANAGER_DATA_PAGE_HEADER ergänzt, um sich in den Titel einer Tabelle zu hängen
+* action: Email2tpl umgebau: E-Mail oder Label nun als 3. Feldparameter erlaubt
+* date Field: Suche im Manager nun komfortabler und toleranter
+* field: upload: diverse Korrekturen in speziellen konstellationen, session handling verbessert
+* showvalue nun auch durchsuchbar im Manager
+* manager: dataliste - rex_list cursor angepasst. seite bleibt nun erhalten bei edit, delete, add und übernehmen
+* manager: be_relation with relation table - Werte wurden in der Liste falsch ausgegeben
+* manager: be_media/list inline relations funktionierten in bestimmten konstellationen nicht richtig
+* manager: suchergebnisse - tablenamen mit in Tabelle als class aufnehmen
+* field: html und php werden nun mit codemirror gefütter wenn aktiviert
+* field:mediafile width und height wird nun gespeichert wenn vorhanden
+* field: prio: Attribute - Ermöglicht u.a. die Aktivierung der Live-Suche mittels
+* Action: PHP Action ergänzt
+* Diverse Übersetzungen ergänzt und korrigiert.
+* validate: type: iban validierung ergänzt
+* email template um updatedate ergänzt
+* Page Parameter auf aktuelle Seite (#836) Die Verwendung von `rex_be_controller::getCurrentPage()` erlaubt das direkte Einbinden der data_edit Ansicht in einem eigenen Addon, bzw. weiterhin wie gewohnt in YForm.
+* name-Attribut der Felder von Feld-ID zu Feld-Name geändert, um Yform-Inline-Tabellen zu unterstützen.
+* Umbau der docs auf neuen REDAXO Standard (ist zwar im Moment noch hässlicher, aber das wird noch)
+* Bei Popup Fenstern keine Beschreibung mehr. NImmt zuviel Platz ein.
+* Optimierung hidden Field.
+* datetime: negatives year offset nun möglich
+* Massenlöschung in be_manager_relation Popup nun möglich
+* Manager: Relationtabellen können nun im Nachhinein geändert werden.
+* checkbox Ausgabewert für List nun einstellbar
+* field:number -> decimal default werte werden gesetzt
+* field: checkbox - suche - Texte nun sprachabhängig
+* be_table: Diverse Anpassungen. Importproblem behoben, REX_LINK ermöglicht
+* Diverse dumps, notices entfernt, Fehlermeldung optimiert ..
+* action: redirect - wenn Fehler - dann wird kein redirect ausgeführt
+* Bug: plugin: tools: in neueeren REDAXO Version gingen die Tools wegen eines Fehlers nicht mehr. rex:ready
+* Bug: Transaction bei YForm DataImport korrigiert.
+* Bug: Negativer Uniquekey für unter anderen bei InlineRelationen zu Fehlern
+* Bug: manager: Fehler beim Umgang mit Zwischentabellen behoben
+
+Danke an: xong, jelleschutter, NGWNGW, alexplusde, nandes2062, interweave-media, pschuchmann, DanielWeitenauer, dpf-dd, christophboecker, Geri2017, crydotsnake, engel4u, staabm, tskerbis
+
+
 Version 3.3.1 – 30.10.2019
 --------------------------
 
@@ -52,7 +114,7 @@ Version 3.2 – 19.09.2019
 * REST: Tokenfreigabe können nun auf Endpoints beschränkt werden
 * REST: Zugriffsübersicht zeigte falschen Tokennamen an.
 
-Dank geht an: godsdog, Alexander Walther, Yves Torres, Pascal Schuchmann, Fernando Averanga, Jürgen Weiss, Marco Hanke 
+Dank geht an: godsdog, Alexander Walther, Yves Torres, Pascal Schuchmann, Fernando Averanga, Jürgen Weiss, Marco Hanke
 
 
 
@@ -110,7 +172,7 @@ Version 3.1 – 04.04.2019
 * Massenbearbeitung korrigiert.
 * send parameter dynamisch setzen geht wieder
 * Email: reply_to angepasst und richtig eingesetzt
-* manager:migrate Table mit tinyint geht wieder 
+* manager:migrate Table mit tinyint geht wieder
 * Icons der Subpages entfernt
 * Feld: be_table geht nun wieder.
 * Email: update funktionierte nicht richtig.
@@ -207,7 +269,7 @@ Danke auch an Fernando Averanga, christophboecker, Wolfgang Bund, Alex Platter, 
 * action: createdb -> create_table
 * labelexist -> in_names
 * existintable -> in_table
-* REX_YFORM_TABLE_DATA[table="tablename" output="widget/widgetlist"] -> REX_YFORM_TABLE_DATA[table="tablename" widget="1" multiple="1"]
+* REX_YFORM_TABLE_DATA[table="tablename" output="widget/widgetlist"] -> REX_YFORM_TABLE_DATA[id=1 table="tablename" widget="1" multiple="1"]
 
 Version 2.3 – 26.01.2018
 --------------------------
@@ -220,7 +282,7 @@ Version 2.3 – 26.01.2018
 * Tools: Timepicker angepasst
 * geo locations: fixed
 * Abhängigkeit ist nun REDAXO 5.5
-* Benennungen angepasst name, label .. 
+* Benennungen angepasst name, label ..
 * uniqueform entfernt
 * Umbau auf rex_sql_table
 * GEO Plugin gelöscht, google_geo feld verschoben und bleibt
@@ -254,7 +316,7 @@ Version 2.3 – 26.01.2018
 * Bei Update aus älteren YForms wird nun auch das be_medialist und submits entfernt
 * select Feld: Falsche selected korrigiert, Defaultwert wird nun richtig übernommen
 * radio feld hat keinen Fehler ausgegeben.
-* Manager: CSV Import/Export optimiert. BOM gesetzt und entfernt. Unnötige Felder werden ignoriert, EnsureColumne bei AlterTable .. 
+* Manager: CSV Import/Export optimiert. BOM gesetzt und entfernt. Unnötige Felder werden ignoriert, EnsureColumne bei AlterTable ..
 * redirect geht nun richtig mit REDAXO 5.4 Version
 * Manager: Historieeinträge konnten bei bestimmten Relationen nicht wieder zurückgesetzt werden
 * YOrm: Durch Nutzung von YORM, wurde immer der Send Status für alle Formulare gesetzt.

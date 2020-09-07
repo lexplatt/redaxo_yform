@@ -11,6 +11,10 @@ class rex_yform_value_be_select_category extends rex_yform_value_abstract
 {
     public function enterObject()
     {
+        if (null == $this->getValue()) {
+            $this->setValue('');
+        }
+
         if (is_array($this->getValue())) {
             $this->setValue(implode(',', $this->getValue()));
         }
@@ -24,7 +28,7 @@ class rex_yform_value_be_select_category extends rex_yform_value_abstract
             return;
         }
 
-        $multiple = $this->getElement('multiple') == 1;
+        $multiple = 1 == $this->getElement('multiple');
 
         $options = [];
         if ($this->getElement('homepage')) {
@@ -35,7 +39,7 @@ class rex_yform_value_be_select_category extends rex_yform_value_abstract
         $checkPerms = $this->getElement('check_perms');
         $clang = (int) $this->getElement('clang');
 
-        $add = function (rex_category $cat, $level = 0) use (&$add, &$options, $ignoreOfflines, $checkPerms, $clang) {
+        $add = static function (rex_category $cat, $level = 0) use (&$add, &$options, $ignoreOfflines, $checkPerms, $clang) {
             if (!$checkPerms || rex::getUser()->getComplexPerm('structure')->hasCategoryPerm($cat->getId())) {
                 $cid = $cat->getId();
                 $cname = $cat->getName();
@@ -58,7 +62,7 @@ class rex_yform_value_be_select_category extends rex_yform_value_abstract
                 $add($rootCat);
             }
         } else {
-            if (!$checkPerms || rex::getUser()->isAdmin() || rex::getUser()->hasPerm('csw[0]')) {
+            if (!$checkPerms || rex::getUser()->isAdmin() || rex::getUser()->getComplexPerm('structure')->hasCategoryPerm(0)) {
                 if ($rootCats = rex_category::getRootCategories($ignoreOfflines, $clang)) {
                     foreach ($rootCats as $rootCat) {
                         $add($rootCat);
@@ -67,7 +71,7 @@ class rex_yform_value_be_select_category extends rex_yform_value_abstract
             } elseif (rex::getUser()->getComplexPerm('structure')->hasMountpoints()) {
                 $mountpoints = rex::getUser()->getComplexPerm('structure')->getMountpoints();
                 foreach ($mountpoints as $id) {
-                    $cat = rex_category::getCategoryById($id, $clang);
+                    $cat = rex_category::get($id, $clang);
                     if ($cat && !rex::getUser()->getComplexPerm('structure')->hasCategoryPerm($cat->getParentId())) {
                         $add($cat);
                     }

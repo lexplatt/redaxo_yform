@@ -4,9 +4,9 @@ class rex_yform_manager_dataset
 {
     use rex_instance_pool_trait;
 
-    const ACTION_CREATE = 'create';
-    const ACTION_UPDATE = 'update';
-    const ACTION_DELETE = 'delete';
+    public const ACTION_CREATE = 'create';
+    public const ACTION_UPDATE = 'update';
+    public const ACTION_DELETE = 'delete';
 
     private static $debug = false;
 
@@ -18,7 +18,7 @@ class rex_yform_manager_dataset
     private $table;
 
     private $id;
-    private $exists = null;
+    private $exists;
 
     private $data;
     private $newData = [];
@@ -67,11 +67,11 @@ class rex_yform_manager_dataset
 
         $class = self::getModelClass($table);
         if ($class && __CLASS__ === static::class) {
-            /** @noinspection PhpUndefinedMethodInspection */
+            /* @noinspection PhpUndefinedMethodInspection */
             return $class::get($id, $table);
         }
 
-        return static::getInstance([$table, $id], function ($table, $id) {
+        return static::getInstance([$table, $id], static function ($table, $id) {
             return static::query($table)->findId($id);
         });
     }
@@ -92,11 +92,11 @@ class rex_yform_manager_dataset
 
         $class = self::getModelClass($table);
         if ($class && __CLASS__ === static::class) {
-            /** @noinspection PhpUndefinedMethodInspection */
+            /* @noinspection PhpUndefinedMethodInspection */
             return $class::getRaw($id, $table);
         }
 
-        $callback = function ($table, $id) {
+        $callback = static function ($table, $id) {
             $class = self::tableToModel($table);
             return new $class($table, $id);
         };
@@ -142,7 +142,6 @@ class rex_yform_manager_dataset
 
     /**
      * @param string      $query
-     * @param array       $params
      * @param null|string $table
      *
      * @return null|static
@@ -153,7 +152,7 @@ class rex_yform_manager_dataset
 
         $class = self::getModelClass($table);
         if ($class && __CLASS__ === static::class) {
-            /** @noinspection PhpUndefinedMethodInspection */
+            /* @noinspection PhpUndefinedMethodInspection */
             return $class::queryOne($query, $params, $table);
         }
 
@@ -176,7 +175,6 @@ class rex_yform_manager_dataset
 
     /**
      * @param string      $query
-     * @param array       $params
      * @param null|string $table
      *
      * @return rex_yform_manager_collection
@@ -187,7 +185,7 @@ class rex_yform_manager_dataset
 
         $class = self::getModelClass($table);
         if ($class && __CLASS__ === static::class) {
-            /** @noinspection PhpUndefinedMethodInspection */
+            /* @noinspection PhpUndefinedMethodInspection */
             return $class::queryCollection($query, $params, $table);
         }
 
@@ -369,7 +367,7 @@ class rex_yform_manager_dataset
         // but it would not work in this case, so we are using `__CLASS__`.
         $class = __CLASS__;
 
-        /** @noinspection PhpUndefinedMethodInspection */
+        /* @noinspection PhpUndefinedMethodInspection */
         return $class::get($id, $relation['table']);
     }
 
@@ -390,8 +388,7 @@ class rex_yform_manager_dataset
     }
 
     /**
-     * @param string                       $key
-     * @param rex_yform_manager_collection $collection
+     * @param string $key
      *
      * @return $this
      */
@@ -520,7 +517,7 @@ class rex_yform_manager_dataset
 
         rex_extension::registerPoint(new rex_extension_point('YFORM_DATA_DELETED', '', ['table' => $this->getTable(), 'data_id' => $this->id, 'data' => $this]));
 
-        rex_yform_manager_dataset::clearInstance([$this->getTable()->getName(), $this->id]);
+        self::clearInstance([$this->getTable()->getName(), $this->id]);
 
         $this->invalidateData();
         $this->dataLoaded = true;
@@ -530,8 +527,6 @@ class rex_yform_manager_dataset
 
     /**
      * Fields of yform Definitions.
-     *
-     * @param array $filter
      *
      * @return rex_yform_manager_field[]
      */
@@ -553,10 +548,10 @@ class rex_yform_manager_dataset
 
     public function executeForm(rex_yform $yform, callable $afterFieldsExecuted = null)
     {
-        $exits = $this->exists();
+        $exists = $this->exists();
         $oldData = $this->getData();
 
-        if ($exits) {
+        if ($exists) {
             /** @var rex_yform $yform */
             $yform = rex_extension::registerPoint(new rex_extension_point('YFORM_DATA_UPDATE', $yform, ['table' => $this->getTable(), 'data_id' => $this->id, 'data' => $this]));
         } else {
@@ -586,6 +581,7 @@ class rex_yform_manager_dataset
                 $this->id = $dbAction->getParam('main_id') ?: null;
                 if ($this->id) {
                     self::addInstance($this->id, $this);
+                    rex_yform_value_be_manager_relation::clearCache($this->table);
                 }
             }, rex_extension::EARLY);
         }
@@ -593,7 +589,7 @@ class rex_yform_manager_dataset
         $form = $yform->executeActions();
 
         if ($yform->objparams['actions_executed']) {
-            if ($exits) {
+            if ($exists) {
                 rex_extension::registerPoint(new rex_extension_point('YFORM_DATA_UPDATED', $yform, ['table' => $this->getTable(), 'data_id' => $this->id, 'data' => $this, 'old_data' => $oldData]));
             } else {
                 rex_extension::registerPoint(new rex_extension_point('YFORM_DATA_ADDED', $yform, ['table' => $this->getTable(), 'data_id' => $this->id, 'data' => $this]));
@@ -613,7 +609,7 @@ class rex_yform_manager_dataset
         }
 
         $user = rex::getEnvironment();
-        if ($user == 'backend' && rex::getUser()) {
+        if ('backend' == $user && rex::getUser()) {
             $user = rex::getUser()->getLogin();
         }
 
@@ -729,7 +725,7 @@ class rex_yform_manager_dataset
                 ++$i;
             }
 
-            if ($field->getType() == 'value') {
+            if ('value' == $field->getType()) {
                 $values = rex_extension::registerPoint(new rex_extension_point('YFORM_DATASET_FORM_SETVALUEFIELD', $values, [
                     'type_name' => $field->getTypeName(),
                     'object' => $this,
@@ -738,7 +734,7 @@ class rex_yform_manager_dataset
                 if ($values) {
                     $yform->setValueField($field->getTypeName(), $values);
                 }
-            } elseif ($field->getType() == 'validate') {
+            } elseif ('validate' == $field->getType()) {
                 $values = rex_extension::registerPoint(new rex_extension_point('YFORM_DATASET_FORM_SETVALIDATEFIELD', $values, [
                     'type_name' => $field->getTypeName(),
                     'object' => $this,
@@ -747,7 +743,7 @@ class rex_yform_manager_dataset
                 if ($values) {
                     $yform->setValidateField($field->getTypeName(), $values);
                 }
-            } elseif ($field->getType() == 'action') {
+            } elseif ('action' == $field->getType()) {
                 $yform->setActionField($field->getTypeName(), $values);
             }
         }
@@ -794,7 +790,6 @@ class rex_yform_manager_dataset
     }
 
     /**
-     * @param array  $data
      * @param string $table
      *
      * @return static
