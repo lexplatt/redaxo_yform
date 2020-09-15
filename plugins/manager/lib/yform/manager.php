@@ -1410,7 +1410,7 @@ class rex_yform_manager
                 ], false);
                 $panel_options .= '<small class="rex-panel-option-title">' . rex_i18n::msg('yform_table') . '</small> ' . $fragment->parse('core/buttons/button_group.php');
 
-                $sql = 'select id, prio, type_id, type_name, name, label from ' . rex_yform_manager_field::table() . ' where table_name="' . $table->getTableName() . '" order by prio';
+                $sql = 'select id, prio, type_id, type_name, name, label, notice from ' . rex_yform_manager_field::table() . ' where table_name="' . $table->getTableName() . '" order by prio';
                 $list = rex_list::factory($sql, 200);
                 // $list->debug = 1;
                 // $list->setColumnFormat('id', 'Id');
@@ -1449,6 +1449,10 @@ class rex_yform_manager
                 $list->setColumnLabel('label', rex_i18n::msg('yform_values_defaults_label'));
                 $list->setColumnLayout('label', ['<th>###VALUE###</th>', '###VALUE###']); // ###VALUE###
                 $list->setColumnFormat('label', 'custom', 'rex_yform_list_format');
+
+                $list->setColumnLabel('notice', 'Notice');
+                $list->setColumnLayout('notice', ['<th>###VALUE###</th>', '###VALUE###']); // ###VALUE###
+                $list->setColumnFormat('notice', 'custom', 'rex_yform_list_format');
 
                 $list->addColumn(rex_i18n::msg('yform_function'), '<i class="rex-icon rex-icon-edit"></i> ' . rex_i18n::msg('yform_edit'));
                 $list->setColumnParams(rex_i18n::msg('yform_function'), ['field_id' => '###id###', 'func' => 'edit', 'type_name' => '###type_name###', 'type_id' => '###type_id###']);
