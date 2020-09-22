@@ -193,11 +193,6 @@ class rex_yform_value_upload extends rex_yform_value_abstract
             $this->params['warning_messages'][$this->getId()] = implode(', ', $errors);
         }
 
-        $download_link = '';
-        if (rex::isBackend()) {
-            $download_link = self::upload_getDownloadLink($this->params['main_table'], $this->getName(), $this->params['main_id']);
-        }
-
         if ($this->needsOutput()) {
             $this->params['form_output'][$this->getId()] = $this->parse('value.upload.tpl.php', ['unique' => $unique, 'filename' => $filename, 'error_messages' => $error_messages, 'download_link' => $download_link]);
         }
