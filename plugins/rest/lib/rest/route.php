@@ -225,11 +225,13 @@ class rex_yform_rest_route
                         $links = [];
                         $meta = [];
 
-                        $linkParams = [
+                        $linkParams = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_LINKPARAMS', [
                             'page' => $currentPage,
                             'per_page' => $per_page,
                             'order' => $order,
-                        ];
+                        ], [
+                            'route' => $this
+                        ]));
 
                         if (isset($get['filter']) && is_array($get['filter'])) {
                             $linkParams['filter'] = $get['filter'];
