@@ -53,6 +53,12 @@ class rex_yform_rest_route
 
     public function handleRequest($paths, $get)
     {
+        // kreatif: extension point added
+        $get = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_PARSE_GET', $get, [
+            'route' => $this,
+            'paths' => $paths,
+        ]));
+
         if (!isset($this->config['table'])) {
             \rex_yform_rest::sendError(400, 'table-not-available');
         }
@@ -66,7 +72,10 @@ class rex_yform_rest_route
         $table = $this->config['table'];
 
         /** @var rex_yform_manager_query $query */
-        $query = $this->config['query'];
+        // kreatif: extension point added
+        $query = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_GET_QUERY', $this->config['query'], [
+            'route' => $this,
+        ]));
 
         switch ($requestMethod) {
             case 'get':
