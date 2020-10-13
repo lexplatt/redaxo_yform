@@ -121,9 +121,16 @@ class rex_yform_value_upload extends rex_yform_value_abstract
             if (file_exists($filepath)) {
                 $real_filepath = $filepath;
             } else {
-                $this->unsetSessionVar('value');
-                $filename = '';
-                $filepath = '';
+                // kreatif: check if file exists without main_id
+                $filepath = (string) $this->upload_getFolder() . '/' . $filename;
+
+                if (file_exists($filepath)) {
+                    $real_filepath = $filepath;
+                } else {
+                    $this->unsetSessionVar('value');
+                    $filename = '';
+                    $filepath = '';
+                }
             }
         }
 
