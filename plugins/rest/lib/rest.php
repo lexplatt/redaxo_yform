@@ -122,8 +122,8 @@ class rex_yform_rest
             }
         }
 
-        if (array_key_exists($key, $headers)) {
-            $value = $headers[$key];
+        if (array_key_exists(strtolower($key), $headers)) {
+            $value = $headers[strtolower($key)];
         }
 
         if ($value == '') {
