@@ -246,6 +246,7 @@ class rex_yform_rest_route
                         $meta['currentItems'] = count($instances);
                         $meta['itemsPerPage'] = $per_page;
                         $meta['currentPage'] = $currentPage;
+                        $meta['totalPages'] = ceil((int) $itemsAll / $per_page); // kreatif: info added
 
                         $links['self'] = \rex_yform_rest::getLinkByPath($this, $linkParams);
                         $links['first'] = \rex_yform_rest::getLinkByPath($this, array_merge(
