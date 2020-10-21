@@ -105,7 +105,7 @@ class rex_var_yform_table_data extends rex_var
 
         $e = [];
         $e['field'] = '
-                <select class="form-control" name="YFORM_DATASETLIST_SELECT_' . $id . '" id="YFORM_DATASETLIST_SELECT_' . $id . '" size="10">
+                <select class="form-control '. $args['class'] .'" name="YFORM_DATASETLIST_SELECT_' . $id . '" id="YFORM_DATASETLIST_SELECT_' . $id . '" size="10">
                     ' . implode('', $options) . '
                 </select>
                 <input type="hidden" name="' . $name . '" id="YFORM_DATASETLIST_FIELD_' . $id . '" value="' . rex_escape(($value)) . '" />';
