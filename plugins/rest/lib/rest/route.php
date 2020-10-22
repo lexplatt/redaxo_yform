@@ -519,15 +519,17 @@ class rex_yform_rest_route
                 ];
         } else {
             return
-                [
+                \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_GET_INSTANCE_DATA', [
                     // kreatif: (int) casting added
                     'id' => (int)$instance->getId(),
                     'type' => $this->getTypeFromInstance($instance),
                     'attributes' => $this->getInstanceAttributes($instance),
                     'relationships' => $this->getInstanceRelationships($instance),
                     'links' => $links,
-                ];
-
+                ], [
+                    'instance' => $instance,
+                    'route' => $this,
+                ]));
         }
     }
 
