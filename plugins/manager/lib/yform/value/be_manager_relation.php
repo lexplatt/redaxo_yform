@@ -923,7 +923,16 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
         $sql = rex_sql::factory();
 
         if (!$field->getElement('relation_table')) {
-            return 'FIND_IN_SET(' . $sql->escape($value) . ', ' . $sql->escapeIdentifier($field) . ')';
+            if (strpos($value, ',') === false) {
+                return 'FIND_IN_SET(' . $sql->escape($value) . ', ' . $sql->escapeIdentifier($field) . ')';
+            } else {
+                // kreatif: added to handle OR requests
+                $_values = [];
+                foreach (array_filter(explode(',', $value)) as $_value) {
+                    $_values[] = $sql->escape($_value);
+                }
+                return $sql->escapeIdentifier($field) .' IN(' . implode(',', $_values) . ')';
+            }
         }
 
         $relationTableFields = self::getRelationTableFieldsForTables($field->getElement('table_name'), $field->getElement('relation_table'), $field->getElement('table'));
