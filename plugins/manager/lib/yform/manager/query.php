@@ -754,7 +754,7 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
     {
         $query = clone $this;
         $query
-            ->resetSelect()
+            //->resetSelect() kreatif: removed
             ->selectRaw('COUNT(*)', 'count')
             ->resetOrderBy();
 
