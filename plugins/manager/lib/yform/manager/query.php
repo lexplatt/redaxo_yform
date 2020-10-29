@@ -753,13 +753,8 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
     public function count()
     {
         $query = clone $this;
-        $query
-            //->resetSelect() kreatif: removed
-            ->selectRaw('COUNT(*)', 'count')
-            ->resetOrderBy();
-
         $sql = rex_sql::factory();
-        $sql->setQuery($query->getQuery(), $query->getParams());
+        $sql->setQuery('SELECT COUNT(*) AS count FROM (' . $query->getQuery() . ') AS __SUBQUERY', $query->getParams());
 
         return $sql->getValue('count');
     }
