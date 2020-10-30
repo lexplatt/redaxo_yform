@@ -30,6 +30,9 @@ class rex_yform_value_datestamp extends rex_yform_value_abstract
         }
 
         $this->setValue($value);
+
+        // kreatif: extension_point added
+        rex_extension::registerPoint(new rex_extension_point('YFORM_DATESTAMP_PREVALIDATE', $this));
     }
 
     public function enterObject()
@@ -41,6 +44,11 @@ class rex_yform_value_datestamp extends rex_yform_value_abstract
                 $this->params['form_output'][$this->getId()] = $this->parse('value.hidden.tpl.php');
             }
         }
+
+        // kreatif: extension_point added
+        $this->params['form_output'][$this->getId()] .= rex_extension::registerPoint(new rex_extension_point('YFORM_DATESTAMP_OUTPUT', '', [
+            'field' => $this
+        ]));
 
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
         if ($this->getValue() && $this->saveInDb()) {
