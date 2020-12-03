@@ -153,7 +153,7 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
             $field->params['send'] = $send;
 
 
-            if ($send) {
+            if (rex::isBackend() && $send) {
                 $field->preValidateAction();
             }
             else if (count($this->getValue())) {
