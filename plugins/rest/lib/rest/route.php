@@ -283,6 +283,8 @@ class rex_yform_rest_route
                     }
                 }
 
+                \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_BEFORE_SEND', $data));
+
                 \rex_yform_rest::sendContent(200, $data);
 
                 break;
