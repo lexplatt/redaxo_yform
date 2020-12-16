@@ -77,7 +77,7 @@ class rex_yform_rest
 
             // kreatif: $paths added
             if (!$route->hasAuth($paths)) {
-                self::sendError(400, 'no-access');
+                self::sendError(401, 'no-access');
             } else {
                 $route
                 ->handleRequest($paths, $_GET);
