@@ -283,7 +283,9 @@ class rex_yform_rest_route
                     }
                 }
 
-                \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_BEFORE_SEND', $data));
+                $data = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_BEFORE_SEND', $data, [
+                    'query' => $query,
+                ]));
 
                 \rex_yform_rest::sendContent(200, $data);
 
@@ -299,7 +301,11 @@ class rex_yform_rest_route
                 $fields = $this->getFields('post', $instance);
 
                 // kreatif: use self::getRequestData() to verify json validity
-                $in = self::getRequestData();
+                $in = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_POST_DATA',self::getRequestData(), [
+                    'instance' => $instance,
+                    'route' => $this,
+                    'paths' => $paths
+                ]));
 
                 $data = (array) @$in['data']['attributes'];
                 $type = (string) @$in['data']['type'];
