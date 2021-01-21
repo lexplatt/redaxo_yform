@@ -510,7 +510,11 @@ class rex_yform_rest_route
                 }
             }
         }
-        return $query;
+        return \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_GET_FILTER_QUERY', $query, [
+            'route' => $this,
+            'fields' => $fields,
+            'get' => $get,
+        ]));
     }
 
     public function getInstanceData($instance, $paths, $onlyId = false)
