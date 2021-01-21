@@ -79,6 +79,7 @@ class rex_yform_rest
             if (!$route->hasAuth($paths)) {
                 self::sendError(401, 'no-access');
             } else {
+                $paths = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_HANDLE_ROUTE_PATHS', $paths));
                 $route
                 ->handleRequest($paths, $_GET);
             }
