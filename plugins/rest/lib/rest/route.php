@@ -50,7 +50,7 @@ class rex_yform_rest_route
         return $this->path;
     }
 
-    public function handleRequest($paths, $get)
+    public function handleRequest($paths, $get, $returnResponse = false)
     {
         // kreatif: extension point added
         $get = \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_PARSE_GET', $get, [
@@ -286,7 +286,11 @@ class rex_yform_rest_route
                     'query' => $query,
                 ]));
 
-                \rex_yform_rest::sendContent(200, $data);
+                if ($returnResponse) {
+                    return $data;
+                } else {
+                    \rex_yform_rest::sendContent(200, $data);
+                }
 
                 break;
 
@@ -349,8 +353,26 @@ class rex_yform_rest_route
 
                             $value = [];
                             foreach ($relation_data as $relation_date) {
-                                $relation_date_type = (string) @$relation_date['type'];
+                                $relation_date_type = $relation_date['type'] ?? rex_yform_manager_dataset::getModelClass($fields[$inKey]->getElement('table'));
                                 // TODO: übergebenen Type mit Klasse der Relation prüfen
+
+                                // kreatif: recursive relationships handling added
+                                if ($relation_date_type && isset($relation_date['attributes'])) {
+                                    $_inst = $relation_date_type::create();
+                                    $_route = \rex_yform_rest::getRouteByInstance($_inst);
+
+                                    $relation_date['type'] = $relation_date_type;
+
+                                    \rex_extension::register('YFORM_REST_POST_DATA', static function (\rex_extension_point $ep) {
+                                        $_data = $ep->getParam('relationData');
+                                        if($_data && get_class($ep->getParam('instance')) == $_data['type']) {
+                                            $ep->setSubject(['data' => $_data]);
+                                        }
+                                    }, \rex_extension::EARLY, ['relationData' => $relation_date]);
+
+                                    $relation_date = $_route->handleRequest([], $_GET, true);
+                                }
+                                //kreatif: end
 
                                 $relation_date_id = (int) @$relation_date['id'];
                                 if ($relation_date_id > 0) {
@@ -370,7 +392,12 @@ class rex_yform_rest_route
                         \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_SAVED', $dataset, [
                             'status' => $OKStatus,
                         ]));
-                        \rex_yform_rest::sendContent($OKStatus, ['id' => $dataset->getId()]);
+
+                        if ($returnResponse) {
+                            return ['id' => $dataset->getId()];
+                        } else {
+                            \rex_yform_rest::sendContent($OKStatus, ['id' => $dataset->getId()]);
+                        }
                     } else {
                         foreach ($dataset->getMessages() as $message_key => $message) {
                             $errors[] = \rex_i18n::translate($message);
@@ -419,7 +446,11 @@ class rex_yform_rest_route
                     $content['dataset'][] = $date;
                 }
 
-                \rex_yform_rest::sendContent(200, $content);
+                if ($returnResponse) {
+                    return $content;
+                } else {
+                    \rex_yform_rest::sendContent(200, $content);
+                }
 
                 break;
 
