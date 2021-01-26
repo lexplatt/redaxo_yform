@@ -4,7 +4,7 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
 {
     private $table;
 
-    private $alias = null;
+    private $alias;
     private $selectResetted = false;
     private $select = [];
 
@@ -20,7 +20,7 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
 
     private $groupBy = [];
 
-    private $limit = null;
+    private $limit;
 
     /**
      * @param string $table
@@ -425,7 +425,6 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
 
     /**
      * @param string $where
-     * @param array  $params
      *
      * @return $this
      */
@@ -445,7 +444,7 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
      */
     public function whereNested($nested, $operator = 'AND')
     {
-        $operator = mb_strtoupper(trim($operator));
+        $operator = strtoupper(trim($operator));
 
         if (is_array($nested)) {
             $this->where[] = $this->buildNestedWhere($nested, $operator);
@@ -642,8 +641,6 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
     }
 
     /**
-     * @param rex_pager $pager
-     *
      * @return rex_yform_manager_collection
      */
     public function paginate(rex_pager $pager)
@@ -796,7 +793,7 @@ class rex_yform_manager_query implements IteratorAggregate, Countable
         }
 
         if ($value instanceof DateTimeInterface) {
-            return $value->format('Y-m-d H:i:s');
+            return $value->format(rex_sql::FORMAT_DATETIME);
         }
 
         if (is_object($value)) {

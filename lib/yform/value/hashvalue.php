@@ -15,14 +15,15 @@ class rex_yform_value_hashvalue extends rex_yform_value_abstract
         $hashValue     = [];
         $fieldsToCheck = array_filter(explode(',', $this->getElement('field')));
         foreach ($fieldsToCheck as $fieldName) {
-            $generateHash = $generateHash && $this->params['value_pool']['email'][$fieldName] !== '';
+            $generateHash = $generateHash && '' != $this->params['value_pool']['email'][$fieldName];
             $hashValue[]  = $this->params['value_pool']['email'][$fieldName];
         }
         if ($generateHash) {
-            $salt   = $this->getElement('salt');
-            $func   = $this->getElement('function');
+            $salt = $this->getElement('salt');
+            $origin = $this->params['value_pool']['email'][$this->getElement(3)];
+            $func = $this->getElement('function');
 
-            if ($func == '' || !function_exists($func)) {
+            if ('' == $func || !function_exists($func)) {
                 $func = 'md5';
             }
 

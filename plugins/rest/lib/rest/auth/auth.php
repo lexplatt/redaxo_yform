@@ -17,7 +17,7 @@ class rex_yform_rest_auth_token
 
         $TokenAuths = \rex_sql::factory()->getArray('select * from '.rex::getTable('yform_rest_token').' where status=1 and token=? and FIND_IN_SET(?, paths)', [$myToken, $route->getPath()]);
 
-        if (count($TokenAuths) != 1) {
+        if (1 != count($TokenAuths)) {
             return false;
         }
 
@@ -50,14 +50,14 @@ class rex_yform_rest_auth_token
         \rex_sql::factory()
             ->setTable(rex::getTable('yform_rest_token_access'))
             ->setValue('token_id', $TokenAuth['id'])
-            ->setValue('datetime_created', date('Y-m-d H:i:s'))
+            ->setValue('datetime_created', date(rex_sql::FORMAT_DATETIME))
             ->setValue('url', \rex_yform_rest::getCurrentUrl())
             ->insert();
     }
 
     public static function get($id)
     {
-        if (count(self::$tokenList) == 0) {
+        if (0 == count(self::$tokenList)) {
             self::$tokenList = rex_sql::factory()->getArray('select * from '.rex::getTable('yform_rest_token'));
         }
 

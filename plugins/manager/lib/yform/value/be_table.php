@@ -13,7 +13,7 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
     public function preValidateAction()
     {
         // bc service for Version < 1.1
-        if ($this->getValue() != '' && json_decode($this->getValue()) == '') {
+        if ('' != $this->getValue() && '' == json_decode($this->getValue())) {
             $rows = explode(';', $this->getValue());
             foreach ($rows as $row_id => $row) {
                 $rows[$row_id] = explode(',', $row);
@@ -41,12 +41,12 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
             foreach ($_columns as $index => $col) {
                 // Use ;; for separating choice columns instead of ,
                 $values = explode('|', trim(trim(str_replace(';;', ',', rex_yform::unhtmlentities($col))), '|'));
-                if (count($values) == 1) {
+                if (1 == count($values)) {
                     $values = ['text', 'text_'. $index, $values[0]];
                 }
 
                 $class = 'rex_yform_value_' . trim($values[0]);
-                if(class_exists($class)) {
+                if (class_exists($class)) {
                     $name = $values[1];
                     $values[1] = '';
 
@@ -57,10 +57,9 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
                         'name' => $name,
                         'label' => $values[2],
                         'class' => $class,
-                        'values' => $values
+                        'values' => $values,
                     ];
-                }
-                elseif (class_exists('rex_yform_validate_' . trim($values[1]))) {
+                } elseif (class_exists('rex_yform_validate_' . trim($values[1]))) {
                     $validateFields[] = [
                         'field' => 'validate',
                         'index' => $index,
@@ -68,7 +67,7 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
                         'name' => $values[2],
                         'msg' => $values[3],
                         'class' => 'rex_yform_validate_' . trim($values[1]),
-                        'values' => $values
+                        'values' => $values,
                     ];
                 }
             }
@@ -112,7 +111,7 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
 
         $_columns = self::getColumnsByName($this->getElement('columns'));
 
-        if (count($_columns) == 0) {
+        if (0 == count($_columns)) {
             return;
         }
 
@@ -132,7 +131,7 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
         foreach ($_columns as $name => $col) {
             $field = new $col['class']();
 
-            if ($col['field'] == 'value') {
+            if ('value' == $col['field']) {
                 $field->loadParams($yfparams, $col['values']);
                 $field->setName($this->getName());
                 $field->init();
@@ -146,13 +145,12 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
                     $rdata = array_values($data[$rowCount]);
                     $obj->setName($col['name'] . $rowCount . $col['index']);
                     $obj->setValue($rdata[$col['index']]);
-                    $objs[]= $obj;
+                    $objs[] = $obj;
                 }
-            }
-            elseif ($col['field'] == 'validate') {
+            } elseif ('validate' == $col['field']) {
                 $field->setObjects($objs);
 
-                foreach($data as $rowCount => $row) {
+                foreach ($data as $rowCount => $row) {
                     $col['values'][2] = $col['name'] . $rowCount . $columnIndex[$col['name']]; // TODO: check in tpl
 
                     $field->loadParams($this->params, $col['values']);
@@ -171,14 +169,15 @@ class rex_yform_value_be_table extends rex_yform_value_abstract
         if ($this->getParam('send')) {
             $this->setValue(json_encode($this->fieldData));
 
-            if ($this->getElement('no_db') != 1) {
+            if (1 != $this->getElement('no_db')) {
                 $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
             }
             $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
         }
     }
 
-    public function setFieldData($index, $key, $value) {
+    public function setFieldData($index, $key, $value)
+    {
         $this->fieldData[$index][$key] = $value;
     }
 

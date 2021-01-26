@@ -14,8 +14,7 @@ class rex_yform_rest_route
         $this->table = $this->config['table'];
         $this->query = $this->config['query'];
         $this->instance = $this->table->createDataset();
-        $this->path = (substr($this->config['path'],-1) == '/') ? substr($this->config['path'],0, -1) : $this->config['path'];
-
+        $this->path = ('/' == substr($this->config['path'], -1)) ? substr($this->config['path'], 0, -1) : $this->config['path'];
     }
 
     // kreatif: method to verify the json is valid
@@ -68,7 +67,7 @@ class rex_yform_rest_route
             \rex_yform_rest::sendError(400, 'request-method-not-available');
         }
 
-        /* @var \rex_yform_manager_table $table */
+        /** @var \rex_yform_manager_table $table */
         $table = $this->config['table'];
 
         /** @var rex_yform_manager_query $query */
@@ -89,14 +88,14 @@ class rex_yform_rest_route
                     'paths' => $paths,
                 ]));
 
-                /* @var rex_yform_manager_dataset $instance */
+                /** @var rex_yform_manager_dataset $instance */
                 $instance = null;
-                /* @var rex_yform_manager_collection $instance */
+                /** @var rex_yform_manager_collection $instance */
                 $instances = null;
                 $attribute = null;
                 $baseInstances = false;
 
-                if (count($paths) == 0) {
+                if (0 == count($paths)) {
                     $baseInstances = true;
 
                     // Base Instances with filter and order
@@ -115,12 +114,12 @@ class rex_yform_rest_route
                     if (isset($get['order']) && is_array($get['order'])) {
                         foreach ($get['order'] as $orderName => $orderValue) {
                             if (array_key_exists($orderName, $fields)) {
-                                $orderValue = ($orderValue != 'desc') ? 'asc' : 'desc';
+                                $orderValue = ('desc' != $orderValue) ? 'asc' : 'desc';
                                 $order[$orderName] = $orderValue;
                                 $query->orderBy($orderName, $orderValue);
                             }
                         }
-                        if (count($order) == 0) {
+                        if (0 == count($order)) {
                             $order[$table->getSortFieldName()] = $table->getSortOrderName();
                         }
                         $query->orderBy($table->getSortFieldName(), $table->getSortOrderName());
@@ -161,7 +160,7 @@ class rex_yform_rest_route
                         $id = $path;
                         if (!$instance) {
                             $id_column = 'id';
-                            if ($query->getTableAlias() != '') {
+                            if ('' != $query->getTableAlias()) {
                                 $id_column = $query->getTableAlias().'.id';
                             }
 
@@ -200,7 +199,7 @@ class rex_yform_rest_route
                                 \rex_yform_rest::sendError(400, 'attribute-not-found', ['paths' => $paths, 'table' => $table->getTableName()]);
                             }
 
-                            if ($fields[$attribute]->getTypeName() == 'be_manager_relation') {
+                            if ('be_manager_relation' == $fields[$attribute]->getTypeName()) {
                                 $instances = $instance->getRelatedCollection($attribute);
                                 if (count($instances) > 0) {
                                     $instance = $instances->current();
@@ -314,7 +313,7 @@ class rex_yform_rest_route
                     \rex_yform_rest::sendError(400, 'post-data-type-different');
                 }
 
-                if (count($data) == 0) {
+                if (0 == count($data)) {
                     \rex_yform_rest::sendError(400, 'post-data-attributes-empty');
                 } else {
                     $dataset = null;
@@ -334,7 +333,7 @@ class rex_yform_rest_route
                     }
 
                     foreach ($data as $inKey => $inValue) {
-                        if (array_key_exists($inKey, $fields) && $fields[$inKey]->getTypeName() != 'be_manager_relation') {
+                        if (array_key_exists($inKey, $fields) && 'be_manager_relation' != $fields[$inKey]->getTypeName()) {
                             $dataset->setValue($inKey, $inValue);
                         }
                     }
@@ -342,7 +341,7 @@ class rex_yform_rest_route
                     $relations = (array) @$in['data']['relationships'];
 
                     foreach ($relations as $inKey => $inValue) {
-                        if (array_key_exists($inKey, $fields) && $fields[$inKey]->getTypeName() == 'be_manager_relation') {
+                        if (array_key_exists($inKey, $fields) && 'be_manager_relation' == $fields[$inKey]->getTypeName()) {
                             $relation_data = @$inValue['data'];
                             if (!is_array($relation_data)) {
                                 $relation_data = [$relation_data];
@@ -395,7 +394,7 @@ class rex_yform_rest_route
                     \rex_yform_rest::sendError(404, 'no-available-filter-set');
                 } elseif ($queryClone != $query) {
                     // filter set -> true
-                } elseif (count($paths) == 0) {
+                } elseif (0 == count($paths)) {
                     \rex_yform_rest::sendError(404, 'no-id-set');
                 } else {
                     $id = $paths[0];
@@ -455,7 +454,7 @@ class rex_yform_rest_route
             return $returnFields;
         }
 
-        /* @var $table \rex_yform_manager_table */
+        /** @var \rex_yform_manager_table $table */
         $table = $class::table();
 
         if (!is_object($table)) {
@@ -465,7 +464,7 @@ class rex_yform_rest_route
         $availableFields = $table->getValueFields();
 
         foreach ($availableFields as $key => $availableField) {
-            if ($availableField->getDatabaseFieldType() != 'none') {
+            if ('none' != $availableField->getDatabaseFieldType()) {
                 // ALLE Felder erlaubt wenn kein Feld gesetzt ? count($this->config[$type]['fields'][$class]) == 0 ||
                 if (isset($this->config[$type]['fields'][$class]) && in_array($key, @$this->config[$type]['fields'][$class], true)) {
                     $returnFields[$key] = $availableField;
@@ -478,7 +477,7 @@ class rex_yform_rest_route
 
     public function getFilterQuery($query, $fields, $get)
     {
-        /* @var \rex_yform_manager_query $query */
+        /** @var \rex_yform_manager_query $query */
         $tableAlias = $query->getTableAlias();
 
         if (isset($get['filter']) && is_array($get['filter'])) {
@@ -494,7 +493,7 @@ class rex_yform_rest_route
                                     'field' => $field,
                                 ]);
 
-                                if ($tableAlias != '') {
+                                if ('' != $tableAlias) {
                                     // TODO: fieser hack bisher, da bekannt wie die SearchFilter funktionieren.
                                     $rawQuery = str_replace('`'.$field.'`', '`'.$tableAlias.'`.`'.$field.'`', $rawQuery);
                                 }
@@ -529,8 +528,8 @@ class rex_yform_rest_route
                     'type' => $this->getTypeFromInstance($instance),
                     'links' => $links,
                 ];
-        } else {
-            return
+        }
+        return
                 \rex_extension::registerPoint(new \rex_extension_point('YFORM_REST_GET_INSTANCE_DATA', [
                     // kreatif: (int) casting added
                     'id' => (int)$instance->getId(),
@@ -542,7 +541,6 @@ class rex_yform_rest_route
                     'instance' => $instance,
                     'route' => $this,
                 ]));
-        }
     }
 
     public function getInstanceAttributes(\rex_yform_manager_dataset $instance)
@@ -552,7 +550,7 @@ class rex_yform_rest_route
         $fields = $this->getFields('get', $instance);
 
         foreach ($fields as $fieldName => $field) {
-            if ($field->getTypeName() != 'be_manager_relation') {
+            if ('be_manager_relation' != $field->getTypeName()) {
                 // kreatif: fieldname mapping added
                 $fieldName = $instance->getRestFieldname($fieldName);
                 // kreatif: add data type check
@@ -577,10 +575,10 @@ class rex_yform_rest_route
 
         $return = [];
 
-        /* @var rex_yform_manager_field $field */
+        /** @var rex_yform_manager_field $field */
 
         foreach ($fields as $field) {
-            if ($field->getTypeName() == 'be_manager_relation') {
+            if ('be_manager_relation' == $field->getTypeName()) {
                 $relationInstances = $instance->getRelatedCollection($field->getName());
 
                 $data = [];
@@ -634,7 +632,7 @@ class rex_yform_rest_route
     {
         $type = get_class($instance);
 
-        if ($type == 'rex_yform_manager_dataset' || $instance == 'rex_yform_rest_route' || !$instance) {
+        if ('rex_yform_manager_dataset' == $type || 'rex_yform_rest_route' == $instance || !$instance) {
             $type = 'not-defined';
         }
         return $type;
