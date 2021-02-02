@@ -519,8 +519,6 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
 
             $_fields['fields']['id'] = $idField;
 
-            $sql->beginTransaction();
-
             foreach ($values as $counter => $row) {
                 $row_data = [];
                 $fieldIndex = 0;
@@ -559,11 +557,7 @@ class rex_yform_value_be_manager_relation extends rex_yform_value_abstract
 
             $field->params['warning'][$this->getId()] = $this->params['warning'][$this->getId()];
 
-            if (!empty ($this->params['warning_messages'])) {
-                $sql->rollBack();
-            }
-            else  {
-                $sql->commit();
+            if (empty ($this->params['warning_messages'])) {
                 $this->setValue($lastIds);
 
                 $sql = rex_sql::factory();
