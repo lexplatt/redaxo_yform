@@ -18,7 +18,7 @@ class rex_yform_value_hashvalue extends rex_yform_value_abstract
             $generateHash = $generateHash && '' != $this->params['value_pool']['email'][$fieldName];
             $hashValue[]  = $this->params['value_pool']['email'][$fieldName];
         }
-        if ($generateHash) {
+        if ('' != $generateHash) {
             $salt = $this->getElement('salt');
             $origin = $this->params['value_pool']['email'][$this->getElement(3)];
             $func = $this->getElement('function');
