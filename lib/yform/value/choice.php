@@ -76,9 +76,7 @@ class rex_yform_value_choice extends rex_yform_value_abstract
                     $elementAttributes['multiple'] = 'multiple';
                     $elementAttributes['size'] = count($choiceList->getChoices());
                 }
-                if (false !== $this->getElement('attributes')) {
-                    $elementAttributes = $this->getAttributes('attributes', $elementAttributes, ['autocomplete', 'disabled', 'pattern', 'readonly', 'required', 'size']);
-                }
+                $elementAttributes = $this->getAttributes('attributes', $elementAttributes, ['autocomplete', 'disabled', 'pattern', 'readonly', 'required', 'size']);
             }
 
             $choiceListView = $choiceList->createView($choiceAttributes);
@@ -102,7 +100,7 @@ class rex_yform_value_choice extends rex_yform_value_abstract
 
     public function getDescription()
     {
-        return 'choice|name|label|choices|[expanded type: boolean; default: 0, 0,1]|[multiple type: boolean; default: 0, 0,1]|[default]|[group_by]|[preferred_choices]|[group_attributes]|[choice_attributes]|[attributes]|[notice]|[no_db]';
+        return 'choice|name|label|choices|[expanded type: boolean; default: 0, 0,1]|[multiple type: boolean; default: 0, 0,1]|[default]|[group_by]|[preferred_choices]|[placeholder]|[group_attributes]|[attributes]|[choice_attributes]|[notice]|[no_db]';
     }
 
     public function getDefinitions($values = [])
@@ -307,6 +305,13 @@ class rex_yform_value_choice extends rex_yform_value_abstract
             );
         } elseif (is_string($choicesElement) && strlen(trim($choicesElement)) > 0 && '{' == substr(trim($choicesElement), 0, 1) && '{{' != substr(trim($choicesElement), 0, 2)) {
             $choiceList->createListFromJson($choicesElement);
+        } elseif (is_callable($choicesElement)) {
+            $res = call_user_func($choicesElement);
+            if (is_array($res)) {
+                $choiceList->createListFromStringArray($res);
+            } else {
+                $choiceList->createListFromJson($res);
+            }
         } else {
             $choiceList->createListFromStringArray(
                 $self->getArrayFromString($choicesElement)
