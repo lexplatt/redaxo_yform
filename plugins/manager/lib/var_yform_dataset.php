@@ -44,6 +44,7 @@ class rex_var_yform_table_data extends rex_var
                 'link' => 'index.php?page=yform/manager/data_edit&table_name=' . $table->getTableName(),
                 'table' => $table,
                 'fieldName' => $fieldName,
+                'class' => $this->getArg('class'),
             ];
 
             if ($this->hasArg('multiple') && $this->getArg('multiple')) {
@@ -133,7 +134,7 @@ class rex_var_yform_table_data extends rex_var
             $valueName = rex_escape(trim(sprintf('%s [%s]', $args['valueName'], $value)));
         }
 
-        $e['field'] = '<input class="form-control" type="text" name="YFORM_DATASET_NAME[' . $id . ']" value="' .  $valueName . '" id="YFORM_DATASET_SELECT_' . $id . '" readonly="readonly" /><input type="hidden" name="' .  $name . '" id="YFORM_DATASET_FIELD_' . $id . '" value="' . $value . '" />';
+        $e['field'] = '<input class="form-control '. $args['class'] .'" type="text" name="YFORM_DATASET_NAME[' . $id . ']" value="' .  $valueName . '" id="YFORM_DATASET_SELECT_' . $id . '" readonly="readonly" /><input type="hidden" name="' .  $name . '" id="YFORM_DATASET_FIELD_' . $id . '" value="' . $value . '" />';
         $e['functionButtons'] = '
                 <a href="javascript:void(0);" class="btn btn-popup" onclick="openYFormDataset(' . $id . ', \'' . urlencode($args['fieldName']) . '\', \'' . $link . '\');return false;" title="' .  rex_i18n::msg('yform_relation_choose_entry') . '"><i class="rex-icon rex-icon-add"></i></a>
                 <a href="javascript:void(0);" class="btn btn-popup" onclick="deleteYFormDataset(' . $id . ');return false;" title="' .  rex_i18n::msg('yform_relation_delete_entry') . '"><i class="rex-icon rex-icon-remove"></i></a>';
