@@ -74,12 +74,12 @@ if (rex::isBackend() && rex::getUser()) {
 
 rex_extension::register('YFORM_SAVED', static function (rex_extension_point $ep) {
     if ($ep->getSubject() instanceof Exception) {
-        return;
+        return $ep->getSubject();
     }
 
     $table = rex_yform_manager_table::get($ep->getParam('table'));
     if (!$table) {
-        return;
+        return $ep->getSubject();
     }
 
     $dataset = $ep->getParam('form')->getParam('manager_dataset');

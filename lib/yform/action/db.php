@@ -49,6 +49,14 @@ class rex_yform_action_db extends rex_yform_action_abstract
                 }
             }
 
+            if ($this->params['value_pool']['raw_sql']) {
+                foreach ($this->params['value_pool']['raw_sql'] as $key => $value) {
+                    $sql->setRawValue($key, $value);
+                    if ($where != '') {
+                        $where = str_replace('###' . $key . '###', addslashes($value), $where);
+                    }
+                }
+            }
             $action = null;
 
             if ('' != $where) {

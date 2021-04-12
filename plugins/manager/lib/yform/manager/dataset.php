@@ -28,7 +28,7 @@ class rex_yform_manager_dataset
 
     private $messages = [];
 
-    private function __construct($table, $id = null)
+    protected function __construct($table, $id = null)
     {
         $this->table = $table;
         $this->id = $id;
@@ -704,9 +704,11 @@ class rex_yform_manager_dataset
         return self::$internalForms[$this->table] = $yform;
     }
 
-    private function createForm()
+    protected function createForm($yform = null)
     {
-        $yform = new rex_yform();
+        if ($yform === null || rex::isBackend()) {
+            $yform = new rex_yform();
+        }
         $fields = $this->getFields();
         $yform->setDebug(self::$debug);
 
@@ -725,9 +727,19 @@ class rex_yform_manager_dataset
             }
 
             if ('value' == $field->getType()) {
-                $yform->setValueField($field->getTypeName(), $values);
+                $values = rex_extension::registerPoint(new rex_extension_point('YFORM_DATASET_FORM_SETVALUEFIELD', $values, [
+                    'type_name' => $field->getTypeName(),
+                ]));
+                if ($values) {
+                    $yform->setValueField($field->getTypeName(), $values);
+                }
             } elseif ('validate' == $field->getType()) {
-                $yform->setValidateField($field->getTypeName(), $values);
+                $values = rex_extension::registerPoint(new rex_extension_point('YFORM_DATASET_FORM_SETVALIDATEFIELD', $values, [
+                    'type_name' => $field->getTypeName(),
+                ]));
+                if ($values) {
+                    $yform->setValidateField($field->getTypeName(), $values);
+                }
             } elseif ('action' == $field->getType()) {
                 $yform->setActionField($field->getTypeName(), $values);
             }
@@ -739,7 +751,7 @@ class rex_yform_manager_dataset
         return $yform;
     }
 
-    private function setFormMainId(rex_yform $yform)
+    protected function setFormMainId(rex_yform $yform)
     {
         if ($this->exists()) {
             $where = 'id = ' . (int) $this->id;

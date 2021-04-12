@@ -11,7 +11,7 @@ class rex_yform_value_integer extends rex_yform_value_abstract
 {
     public function enterObject()
     {
-        if ('' == $this->getValue() && !$this->params['send']) {
+        if ('' === $this->getValue() && !$this->params['send']) {
             $this->setValue($this->getElement('default'));
         }
 
@@ -50,6 +50,7 @@ class rex_yform_value_integer extends rex_yform_value_abstract
                 'label' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_label')],
                 'default' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_integer_default')],
                 'no_db' => ['type' => 'no_db',   'label' => rex_i18n::msg('yform_values_defaults_table'),  'default' => 0],
+                'attributes' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_attributes'), 'notice' => rex_i18n::msg('yform_values_defaults_attributes_notice')],
                 'unit' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_unit')],
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],
             ],

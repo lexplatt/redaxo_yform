@@ -29,8 +29,6 @@ class rex_yform_value_choice extends rex_yform_value_abstract
             $this->setValue(explode(',', $this->getValue()));
         }
 
-        $values = $this->getValue();
-
         if (!$values) {
             if (in_array($this->getElement('default'), $choiceList->getChoices(), true)) {
                 $defaultChoices = [$this->getElement('default')];
@@ -42,6 +40,7 @@ class rex_yform_value_choice extends rex_yform_value_abstract
             }
             $this->setValue($choiceList->getDefaultValues($defaultChoices));
         }
+        $values = $this->getValue();
 
         $proofedValues = $choiceList->getProofedValues($values);
 

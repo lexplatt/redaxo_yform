@@ -23,6 +23,7 @@ $table
     ->ensureColumn(new rex_sql_column('prio', 'int(11)'))
     ->ensureColumn(new rex_sql_column('search', 'tinyint(1)'))
     ->ensureColumn(new rex_sql_column('hidden', 'tinyint(1)'))
+    ->ensureColumn(new rex_sql_column('add_new', 'tinyint(1)', false, 1))
     ->ensureColumn(new rex_sql_column('export', 'tinyint(1)'))
     ->ensureColumn(new rex_sql_column('import', 'tinyint(1)'))
     ->ensureColumn(new rex_sql_column('mass_deletion', 'tinyint(1)'))

@@ -19,6 +19,8 @@ class rex_yform_validate_empty extends rex_yform_validate_abstract
         $names = explode(',', $names);
 
         $warningObjects = [];
+        $Value = $this->getValueObject();
+        $label = $Value->getElement('label');
         foreach ($this->getObjects() as $Object) {
             if ($this->isObject($Object) && in_array($Object->getName(), $names)) {
                 if ('' != $Object->getValue()) {
@@ -29,8 +31,9 @@ class rex_yform_validate_empty extends rex_yform_validate_abstract
         }
 
         foreach ($warningObjects as $warningObject) {
+            $msg = Wildcard::parse($this->getElement('message'));
             $this->params['warning'][$warningObject->getId()] = $this->params['error_class'];
-            $this->params['warning_messages'][$warningObject->getId()] = $this->getElement('message');
+            $this->params['warning_messages'][$warningObject->getId()] = str_replace('{{fieldname}}', rex_i18n::translate($label), $msg);
         }
     }
 

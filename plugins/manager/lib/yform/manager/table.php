@@ -172,6 +172,11 @@ class rex_yform_manager_table implements ArrayAccess
         return 1 == $this->values['export'];
     }
 
+    public function isAddable()
+    {
+        return $this->values['add_new'] == 1;
+    }
+
     public function isMassDeletionAllowed()
     {
         return 1 == $this->values['mass_deletion'];

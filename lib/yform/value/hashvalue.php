@@ -11,7 +11,14 @@ class rex_yform_value_hashvalue extends rex_yform_value_abstract
 {
     public function postFormAction()
     {
-        if ('' != $this->params['value_pool']['email'][$this->getElement('field')]) {
+        $generateHash  = true;
+        $hashValue     = [];
+        $fieldsToCheck = array_filter(explode(',', $this->getElement('field')));
+        foreach ($fieldsToCheck as $fieldName) {
+            $generateHash = $generateHash && '' != $this->params['value_pool']['email'][$fieldName];
+            $hashValue[]  = $this->params['value_pool']['email'][$fieldName];
+        }
+        if ('' != $generateHash) {
             $salt = $this->getElement('salt');
             $origin = $this->params['value_pool']['email'][$this->getElement(3)];
             $func = $this->getElement('function');
@@ -20,7 +27,7 @@ class rex_yform_value_hashvalue extends rex_yform_value_abstract
                 $func = 'md5';
             }
 
-            $hash = hash($func, $origin . $salt);
+            $hash = hash($func, implode('', $hashValue) . $salt);
 
             $this->params['value_pool']['email'][$this->getName()] = $hash;
 

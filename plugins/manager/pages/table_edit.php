@@ -124,6 +124,7 @@ if ('tableset_import' == $func && rex::getUser()->isAdmin()) {
 
     $yform->setValueField('checkbox', ['search', rex_i18n::msg('yform_manager_search_active')]);
     $yform->setValueField('checkbox', ['hidden', rex_i18n::msg('yform_manager_table_hide')]);
+    $yform->setValueField('checkbox', ['add_new', rex_i18n::msg('yform_manager_table_allow_add_new')]);
     $yform->setValueField('checkbox', ['history', rex_i18n::msg('yform_manager_table_history')]);
     $yform->setValueField('checkbox', ['schema_overwrite', rex_i18n::msg('yform_manager_table_schema_overwrite'), 'default' => true]);
 
@@ -151,11 +152,21 @@ if ('tableset_import' == $func && rex::getUser()->isAdmin()) {
 
     $yform->setValueField('html', ['html' => '<br /><div class="row"><div class="col-md-6">']);
     $yform->setValueField('choice', ['name' => 'list_sortfield', 'label' => rex_i18n::msg('yform_manager_sortfield'), 'choices' => implode(',', $sortFields)]);
+
+    // kreatif: create infos added
+    $yform->setValueField('be_user', ['name' => 'createuser', 'label' => 'Erstellt von', 'only_empty' => 1, 'show_value' => 1]);
+    $yform->setValueField('datestamp', ['name' => 'createdate', 'label' => 'Erstellt am', 'format' => 'Y-m-d H:i:s', 'only_empty' => 1, 'show_value' => 1]);
+    
     $yform->setValueField('html', ['html' => '</div><div class="col-md-6">']);
     $yform->setValueField('choice', ['name' => 'list_sortorder', 'label' => rex_i18n::msg('yform_manager_sortorder'), 'choices' => [
         'ASC' => rex_i18n::msg('yform_manager_sortorder_asc'),
         'DESC' => rex_i18n::msg('yform_manager_sortorder_desc'),
     ]]);
+
+    // kreatif: update infos added
+    $yform->setValueField('be_user', ['name' => 'updateuser', 'label' => 'Aktualisiert von', 'only_empty' => 0, 'show_value' => 1]);
+    $yform->setValueField('datestamp', ['name' => 'updatedate', 'label' => 'Aktualisiert am', 'format' => 'Y-m-d H:i:s', 'only_empty' => 0, 'show_value' => 1]);
+
 
     $yform->setValueField('html', ['html' => '</div></div>']);
 

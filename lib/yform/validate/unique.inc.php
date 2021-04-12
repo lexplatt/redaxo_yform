@@ -39,7 +39,7 @@ class rex_yform_validate_unique extends rex_yform_validate_abstract
         // all fields available ?
         if (count($qfields) != count($fields)) {
             $this->params['warning'][] = $this->getElement('message');
-            $this->params['warning_messages'][] = $this->getElement('message');
+            $this->params['warning_messages'][] = str_replace('{{fieldname}}', implode(',', $fields), rex_i18n::translate($this->getElement('message')));
             return;
         }
 
@@ -52,7 +52,7 @@ class rex_yform_validate_unique extends rex_yform_validate_abstract
         if ($cd->getRows() > 0) {
             foreach ($qfields as $qfield_id => $qfield_name) {
                 $this->params['warning'][$qfield_id] = $this->params['error_class'];
-                $this->params['warning_messages'][$qfield_id] = $this->getElement('message');
+                $this->params['warning_messages'][$qfield_id] = str_replace('{{fieldname}}', implode(',', $fields), rex_i18n::translate($this->getElement('message'))) . ' - Row-ID = '. $cd->getValue('id');
             }
         }
     }

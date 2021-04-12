@@ -231,6 +231,10 @@ div.sortable-ghost {
     display: none
 }
 
+.formbe_table .be-value-input div.checkbox label {
+    display: block
+}
+
 .formbe_table .btn-delete {
     border-radius: 0;
     display: block;

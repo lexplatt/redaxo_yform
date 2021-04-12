@@ -54,10 +54,6 @@ class rex_yform_value_upload extends rex_yform_value_abstract
             $this->setSessionVar('original_value', (string) $this->getValue());
         }
 
-        if (!$this->isEditable()) {
-            unset($_FILES[$this->getSessionKey()]);
-        }
-
         $FILE = null;
         if (isset($_FILES[$this->getSessionKey()]) && '' != $_FILES[$this->getSessionKey()]['name']) {
             $FILE['size'] = $_FILES[$this->getSessionKey()]['size'];
@@ -99,7 +95,7 @@ class rex_yform_value_upload extends rex_yform_value_abstract
             if (isset($FILE)) {
                 if (!@move_uploaded_file($FILE['tmp_name'], $FILE['tmp_yform_name'])) {
                     if (!@copy($FILE['tmp_name'], $FILE['tmp_yform_name'])) {
-                        $error[] = 'upload failed: destination folder problem';
+                        $errors[] = 'upload failed: destination folder problem';
                         unset($FILE);
                     } else {
                         @chmod($FILE['tmp_yform_name'], rex::getFilePerm());
@@ -125,9 +121,16 @@ class rex_yform_value_upload extends rex_yform_value_abstract
             if (file_exists($filepath)) {
                 $real_filepath = $filepath;
             } else {
-                $this->unsetSessionVar('value');
-                $filename = '';
-                $filepath = '';
+                // kreatif: check if file exists without main_id
+                $filepath = (string) $this->upload_getFolder() . '/' . $filename;
+
+                if (file_exists($filepath)) {
+                    $real_filepath = $filepath;
+                } else {
+                    $this->unsetSessionVar('value');
+                    $filename = '';
+                    $filepath = '';
+                }
             }
         }
 
@@ -141,6 +144,25 @@ class rex_yform_value_upload extends rex_yform_value_abstract
                 $filename = $FILE['name'];
                 $real_filepath = $FILE['upload_folder'].'/'.$FILE['upload_name'];
             }
+        }
+
+        // kreatif: added by us - needed?
+        if (rex::isBackend()) {
+
+            $link_params = [];
+            $link_params['page'] = 'yform/manager/data_edit';
+            $link_params['table_name'] = rex_request('table_name','string');
+            $link_params['func'] = 'edit';
+
+            if ($this->getParam('main_id') != "") {
+                $link_params['data_id'] = $this->getParam('main_id');
+            }
+
+            $link_params[$this->getFieldName('unique')] = $unique;
+            $link_params['rex_upload_downloadfile'] = $this->getName();
+
+            $download_link = 'index.php?'.http_build_query($link_params);
+
         }
 
         // Download starten - wenn Dateinamen übereinstimmen
@@ -164,8 +186,8 @@ class rex_yform_value_upload extends rex_yform_value_abstract
 
         $this->setValue($filename);
 
-        $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
-        $this->params['value_pool']['email'][$this->getName().'_folder'] = $this->getValue();
+        $this->params['value_pool']['email'][$this->getName()] = $this->getParam('main_id') . '_' . $this->getValue();
+        $this->params['value_pool']['email'][$this->getName().'_folder'] = $upload_folder;
         if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
@@ -223,6 +245,9 @@ class rex_yform_value_upload extends rex_yform_value_abstract
                 }
 
                 $upload_filefolder = $FILE['upload_folder'].'/'.$FILE['upload_name'];
+
+                $this->params['value_pool']['email'][$this->getName().'_folder'] = $FILE['upload_folder'];
+                $this->params['value_pool']['files'][$this->getName()] = [$FILE['upload_name'], $FILE['upload_folder'], $upload_filefolder];
 
                 if (!move_uploaded_file($FILE['tmp_yform_name'], $upload_filefolder)) {
                     if (!copy($FILE['tmp_yform_name'], $upload_filefolder)) {
