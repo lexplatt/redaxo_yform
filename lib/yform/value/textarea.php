@@ -23,6 +23,18 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
             $this->params['form_output'][$this->getId()] = $this->parse('value.textarea.tpl.php');
         }
 
+        if ($this->needsOutput() && $this->isViewable()) {
+            $templateParams = [];
+            if (!$this->isEditable()) {
+                $attributes = empty($this->getElement('attributes')) ? [] : json_decode($this->getElement('attributes'), true);
+                $attributes['readonly'] = 'readonly';
+                $this->setElement('attributes', json_encode($attributes) );
+                $this->params['form_output'][$this->getId()] = $this->parse(['value.textarea-view.tpl.php', 'value.view.tpl.php', 'value.textarea.tpl.php'], $templateParams);
+            } else {
+                $this->params['form_output'][$this->getId()] = $this->parse('value.textarea.tpl.php', $templateParams);
+            }
+        }
+
         $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
         if ($this->saveInDb()) {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
@@ -84,10 +96,11 @@ class rex_yform_value_textarea extends rex_yform_value_abstract
 
     public static function getListValue($params)
     {
-        return strip_tags(strtr($params['subject'], [
-            '<br />' => ' ',
-            '<br/>'  => ' ',
-            '<br>'   => ' ',
-        ]));
+        $value = $params['subject'];
+        $length = strlen($value);
+        if ($length > 40) {
+            $value = mb_substr($value, 0, 20).' ... '.mb_substr($value, -20);
+        }
+        return '<span>'.rex_escape($value).'</span>';
     }
 }
